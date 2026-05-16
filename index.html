@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#0A0A0F">
+  <meta name="theme-color" content="#1A2E1A">
   <title>AI中医营养师 · 健身版</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -23,6 +23,7 @@
 
       <!-- ========== HOME ========== -->
       <div class="view active" id="viewHome">
+        <div class="season-banner-mini" id="homeSeasonBanner"></div>
         <div class="hero-section">
           <div class="hero-profile" id="homeAvatar">💪</div>
           <h2 id="homeGreeting">科学健身，从吃对开始</h2>
@@ -35,7 +36,7 @@
             <div class="stat-label">中医体质</div>
           </div>
           <div class="stat-item">
-            <div class="stat-num">31+</div>
+            <div class="stat-num">32+</div>
             <div class="stat-label">食材库</div>
           </div>
           <div class="stat-item">
@@ -89,6 +90,52 @@
         </div>
       </div>
 
+      <!-- ========== BODY INFO ========== -->
+      <div class="view" id="viewBodyInfo">
+        <div class="card">
+          <div class="card-title">📏 填写身体信息</div>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">结合身体数据，为您提供更精准的健身饮食方案</p>
+
+          <div class="body-info-group">
+            <label class="body-info-label">性别</label>
+            <select class="body-info-input" id="bodyGender">
+              <option value="male">男</option>
+              <option value="female">女</option>
+            </select>
+          </div>
+
+          <div class="body-info-group">
+            <label class="body-info-label">年龄</label>
+            <input class="body-info-input" id="bodyAge" type="number" placeholder="请输入年龄" min="10" max="120">
+          </div>
+
+          <div class="body-info-row">
+            <div class="body-info-group" style="flex:1;">
+              <label class="body-info-label">身高 (cm)</label>
+              <input class="body-info-input" id="bodyHeight" type="number" placeholder="cm" min="100" max="250">
+            </div>
+            <div class="body-info-group" style="flex:1;">
+              <label class="body-info-label">体重 (kg)</label>
+              <input class="body-info-input" id="bodyWeight" type="number" placeholder="kg" min="20" max="300">
+            </div>
+          </div>
+
+          <div class="body-info-group">
+            <label class="body-info-label">健身目标</label>
+            <select class="body-info-input" id="bodyGoal">
+              <option value="muscle">增肌塑形</option>
+              <option value="fatloss">减脂瘦身</option>
+              <option value="endurance">提升耐力</option>
+              <option value="health">保持健康</option>
+            </select>
+          </div>
+
+          <div id="bodyInfoError" style="color:#FF453A;font-size:13px;margin:8px 0;"></div>
+
+          <button class="btn btn-primary" onclick="submitBodyInfo()">提交分析 →</button>
+        </div>
+      </div>
+
       <!-- ========== RESULT ========== -->
       <div class="view" id="viewResult">
         <div class="result-badge">
@@ -96,6 +143,8 @@
           <div class="result-name" id="resultName"></div>
           <div class="result-desc" id="resultDesc"></div>
         </div>
+
+        <div id="scoreBreakdown"></div>
 
         <div class="result-tabs" id="resultTabs">
           <div class="result-tab active" data-tab="suitable" onclick="switchResultTab('suitable')">✅ 宜食</div>
@@ -108,7 +157,10 @@
         <div id="resultContent"></div>
 
         <div class="bottom-action">
-          <button class="btn btn-primary" onclick="goToFoodSearch()">🔍 查询食材属性</button>
+          <button class="btn btn-primary" onclick="goToFoodSearch()">🔍 查询食材营养属性</button>
+        </div>
+        <div class="bottom-action">
+          <button class="btn btn-secondary" onclick="startQuiz()">🔄 重新测试</button>
         </div>
       </div>
 
@@ -116,6 +168,7 @@
       <div class="view" id="viewFoodSearch">
         <div class="card">
           <div class="card-title">🥦 药食同源查询</div>
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">查看食材的中医属性、营养价值、搭配建议及作用机理</p>
           <div class="search-box">
             <input type="text" id="foodSearchInput" placeholder="搜索食材（如：牛肉、山药）" onkeydown="if(event.key==='Enter') searchFood()">
             <button class="search-btn" onclick="searchFood()">搜索</button>
@@ -129,7 +182,7 @@
         <div id="foodResults">
           <div class="empty-state">
             <span class="empty-icon">🔍</span>
-            <p>搜索食材，查看中医属性<br>与体质的宜忌关系</p>
+            <p>搜索食材，查看中医属性、营养价值<br>与体质的宜忌关系</p>
           </div>
         </div>
       </div>
@@ -146,6 +199,7 @@
           <div class="profile-avatar" id="profileAvatar">💪</div>
           <div class="profile-name" id="profileName">健身用户</div>
           <div class="profile-phone" id="profilePhone">AI中医营养师</div>
+          <div id="currentConstiBadge" class="consti-badge"></div>
         </div>
 
         <div class="card">
@@ -154,14 +208,19 @@
             <span class="mi-text">体质测试</span>
             <span class="mi-arrow">›</span>
           </div>
-          <div class="menu-item">
-            <span class="mi-icon">📊</span>
-            <span class="mi-text">测试记录</span>
+          <div class="menu-item" onclick="showWorkoutNutrition()">
+            <span class="mi-icon">💪</span>
+            <span class="mi-text">健身饮食</span>
             <span class="mi-arrow">›</span>
           </div>
           <div class="menu-item">
             <span class="mi-icon">❓</span>
             <span class="mi-text">帮助与反馈</span>
+            <span class="mi-arrow">›</span>
+          </div>
+          <div class="menu-item" onclick="clearBodyData()">
+            <span class="mi-icon">🔄</span>
+            <span class="mi-text">重置身体数据</span>
             <span class="mi-arrow">›</span>
           </div>
         </div>

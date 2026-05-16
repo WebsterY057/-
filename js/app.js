@@ -4,12 +4,34 @@ let quizAnswers = []
 let currentFilter = 'all'
 let currentResultTab = 'suitable'
 let currentConstitutionId = null
+let userBodyInfo = null
+let quizScores = null
 
 function init() {
+  loadBodyInfo()
   renderConstiList()
   renderSeasonView()
+  renderMiniSeasonBanner()
   updateTabBar()
   renderHomeGreeting()
+}
+
+function renderMiniSeasonBanner() {
+  const rec = getTodayRecommendation()
+  const el = document.getElementById('homeSeasonBanner')
+  if (el) el.innerHTML = `🌸 ${rec.season} · ${rec.principle}`
+}
+
+function loadBodyInfo() {
+  try {
+    const saved = localStorage.getItem('bodyInfo')
+    if (saved) userBodyInfo = JSON.parse(saved)
+  } catch (e) {}
+}
+
+function saveBodyInfo(info) {
+  userBodyInfo = info
+  localStorage.setItem('bodyInfo', JSON.stringify(info))
 }
 
 function showView(viewId) {
@@ -19,6 +41,7 @@ function showView(viewId) {
   const headerSubtitles = {
     viewHome: 'AI中医 · 科学健身饮食',
     viewQuiz: '中医体质辨识',
+    viewBodyInfo: '填写身体信息',
     viewResult: '体质分析报告',
     viewFoodSearch: '药食同源食材库',
     viewSeason: '应季食疗推荐',
@@ -28,6 +51,7 @@ function showView(viewId) {
   const headerTitles = {
     viewHome: '🏋️ 体质营养',
     viewQuiz: '🧬 体质测试',
+    viewBodyInfo: '📏 身体信息',
     viewResult: '📊 分析报告',
     viewFoodSearch: '🔍 食材查询',
     viewSeason: '📅 时令养生',
@@ -47,7 +71,8 @@ function updateTabBar() {
   if (!activeView) return
   const viewId = activeView.id
   const tabMap = {
-    viewHome: 'viewHome', viewQuiz: 'viewQuiz', viewFoodSearch: 'viewFoodSearch',
+    viewHome: 'viewHome', viewQuiz: 'viewQuiz', viewBodyInfo: 'viewQuiz',
+    viewFoodSearch: 'viewFoodSearch',
     viewProfile: 'viewProfile', viewResult: 'viewHome',
     viewSeason: 'viewHome', viewWorkout: 'viewHome'
   }
@@ -62,7 +87,14 @@ function switchTab(viewId, btn) {
   btn.classList.add('active')
   showView(viewId)
   if (viewId === 'viewSeason') renderSeasonView()
-  if (viewId === 'viewFoodSearch') renderFoodList(currentFilter)
+  if (viewId === 'viewFoodSearch') {
+    if (currentResult) {
+      currentFilter = 'suitable'
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'))
+      document.querySelector('.chip[data-filter="suitable"]').classList.add('active')
+    }
+    renderFoodList(currentFilter)
+  }
   if (viewId === 'viewProfile') renderProfileView()
 }
 
@@ -89,26 +121,81 @@ function renderConstiList() {
 
 function showConstitution(id) {
   currentConstitutionId = id
+  if (currentResult && currentResult.id === id) {
+    showView('viewResult')
+    const c = getConstitutionById(id)
+    document.getElementById('resultEmoji').textContent = c.emoji
+    document.getElementById('resultName').textContent = c.name
+    document.getElementById('resultDesc').textContent = c.description
+    currentResultTab = 'suitable'
+    document.querySelectorAll('.result-tab').forEach(t => t.classList.remove('active'))
+    document.querySelector('.result-tab[data-tab="suitable"]').classList.add('active')
+    renderResultContent('suitable')
+    renderConstitutionSummary()
+    renderScoreBreakdown()
+    updateTabBar()
+    return
+  }
   showView('viewResult')
-
   const c = getConstitutionById(id)
   document.getElementById('resultEmoji').textContent = c.emoji
   document.getElementById('resultName').textContent = c.name
   document.getElementById('resultDesc').textContent = c.description
-
-  currentResult = { id: c.id, name: c.name }
+  currentResult = { id: c.id, name: c.name, scores: null }
   currentResultTab = 'suitable'
   document.querySelectorAll('.result-tab').forEach(t => t.classList.remove('active'))
   document.querySelector('.result-tab[data-tab="suitable"]').classList.add('active')
-
   renderResultContent('suitable')
+  renderConstitutionSummary()
+  renderScoreBreakdown()
   updateTabBar()
+}
+
+function renderConstitutionSummary() {
+  const c = getConstitutionById(currentResult.id)
+  const container = document.getElementById('resultContent')
+  const header = document.querySelector('.result-badge')
+  const existing = header.querySelector('.result-evidence')
+  if (existing) existing.remove()
+
+  const evidenceDiv = document.createElement('div')
+  evidenceDiv.className = 'result-evidence'
+  evidenceDiv.style.cssText = 'margin-top:12px;padding:14px;background:rgba(212,165,116,0.06);border-radius:10px;border:1px solid rgba(212,165,116,0.15);text-align:left;'
+
+  let evidenceHTML = `
+    <div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:6px;">📜 中医典籍依据</div>
+    <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">${c.evidence}</div>
+  `
+
+  if (userBodyInfo) {
+    const height = parseFloat(userBodyInfo.height) / 100
+    const weight = parseFloat(userBodyInfo.weight)
+    const bmi = (weight / (height * height)).toFixed(1)
+    let bmiAdvice = ''
+    if (bmi < 18.5) bmiAdvice = 'BMI偏低（偏瘦），建议增肌增重为主，结合${c.name}的调理方向补充营养。'
+    else if (bmi < 24) bmiAdvice = 'BMI正常，维持现状，以塑形和力量训练为主。'
+    else if (bmi < 28) bmiAdvice = 'BMI偏高超重，建议以减脂为主、增肌为辅，配合${c.name}的饮食调理。'
+    else bmiAdvice = 'BMI达到肥胖标准，强烈建议以减脂为重，优先进行有氧运动结合${c.name}膳食调理。'
+
+    evidenceHTML += `
+      <div style="font-size:12px;color:var(--accent);font-weight:600;margin:10px 0 6px;">📊 身体数据</div>
+      <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">
+        ${userBodyInfo.gender === 'male' ? '男' : '女'} · ${userBodyInfo.age}岁 · ${userBodyInfo.height}cm · ${userBodyInfo.weight}kg · BMI ${bmi}<br>
+        健身目标：${userBodyInfo.goal === 'muscle' ? '增肌塑形' : userBodyInfo.goal === 'fatloss' ? '减脂瘦身' : userBodyInfo.goal === 'endurance' ? '提升耐力' : '保持健康'}<br>
+        <span style="color:${bmi < 18.5 || bmi >= 28 ? '#FF453A' : bmi >= 24 ? '#FF9F0A' : 'var(--accent)'};">${bmiAdvice}</span>
+      </div>
+    `
+  }
+
+  evidenceDiv.innerHTML = evidenceHTML
+  header.appendChild(evidenceDiv)
 }
 
 // ============ QUIZ ============
 function startQuiz() {
   currentQuiz = 0
   quizAnswers = CONSTITUTION_QUESTIONS.map(() => null)
+  quizScores = null
   showView('viewQuiz')
   renderQuestion()
   updateTabBar()
@@ -127,8 +214,8 @@ function renderQuestion() {
   `).join('')
 
   document.getElementById('quizPrevBtn').style.visibility = currentQuiz === 0 ? 'hidden' : 'visible'
-  document.getElementById('quizNextBtn').textContent = currentQuiz === total - 1 ? '查看结果' : '下一题'
-  document.getElementById('quizNextBtn').disabled = selectedIdx === null && currentQuiz < total - 1
+  document.getElementById('quizNextBtn').textContent = currentQuiz === total - 1 ? '填写身体信息' : '下一题'
+  document.getElementById('quizNextBtn').disabled = selectedIdx === null
 }
 
 function selectOption(idx) {
@@ -138,7 +225,7 @@ function selectOption(idx) {
 
 function nextQuestion() {
   if (currentQuiz === CONSTITUTION_QUESTIONS.length - 1) {
-    finishQuiz()
+    showBodyInfoForm()
     return
   }
   currentQuiz++
@@ -162,8 +249,116 @@ function finishQuiz() {
       scores[type] = (scores[type] || 0) + val
     })
   })
+  quizScores = scores
   const resultId = calculateResult(scores)
-  showConstitution(resultId)
+  const c = getConstitutionById(resultId)
+
+  const scoreEntries = Object.entries(scores)
+    .filter(([id, s]) => id !== 'pinghe')
+    .sort((a, b) => b[1] - a[1])
+
+  currentResult = {
+    id: resultId,
+    name: c.name,
+    scores: scoreEntries
+  }
+  currentConstitutionId = resultId
+  showView('viewResult')
+  document.getElementById('resultEmoji').textContent = c.emoji
+  document.getElementById('resultName').textContent = c.name
+  document.getElementById('resultDesc').textContent = c.description
+
+  currentResultTab = 'suitable'
+  document.querySelectorAll('.result-tab').forEach(t => t.classList.remove('active'))
+  document.querySelector('.result-tab[data-tab="suitable"]').classList.add('active')
+  renderResultContent('suitable')
+  renderConstitutionSummary()
+  renderScoreBreakdown()
+  updateTabBar()
+}
+
+function renderScoreBreakdown() {
+  const container = document.getElementById('scoreBreakdown')
+  if (!container) return
+  if (!currentResult || !currentResult.scores) {
+    container.innerHTML = ''
+    return
+  }
+
+  let scoreHTML = `
+    <div class="card">
+      <div class="card-title">📊 体质倾向评分</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">分值越高，体质倾向越明显</div>
+  `
+
+  currentResult.scores.slice(0, 5).forEach(([id, score]) => {
+    const pc = Math.min(100, Math.max(0, (score + 4) / 8 * 100))
+    const consti = getConstitutionById(id)
+    scoreHTML += `
+      <div style="margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
+          <span style="color:var(--text-secondary);">${consti.emoji} ${consti.name}</span>
+          <span style="color:${pc > 50 ? 'var(--gold)' : 'var(--text-muted)'};">${score > 0 ? '+' : ''}${score}</span>
+        </div>
+        <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">
+          <div style="height:100%;width:${pc}%;background:linear-gradient(90deg,var(--gold),var(--accent));border-radius:4px;transition:width 0.5s;"></div>
+        </div>
+      </div>
+    `
+  })
+
+  scoreHTML += '</div>'
+  container.innerHTML = scoreHTML
+}
+
+// ============ BODY INFO ============
+function showBodyInfoForm() {
+  showView('viewBodyInfo')
+  updateTabBar()
+
+  if (userBodyInfo) {
+    document.getElementById('bodyGender').value = userBodyInfo.gender || 'male'
+    document.getElementById('bodyAge').value = userBodyInfo.age || ''
+    document.getElementById('bodyHeight').value = userBodyInfo.height || ''
+    document.getElementById('bodyWeight').value = userBodyInfo.weight || ''
+    document.getElementById('bodyGoal').value = userBodyInfo.goal || 'muscle'
+  } else {
+    document.getElementById('bodyGender').value = 'male'
+    document.getElementById('bodyAge').value = ''
+    document.getElementById('bodyHeight').value = ''
+    document.getElementById('bodyWeight').value = ''
+    document.getElementById('bodyGoal').value = 'muscle'
+  }
+}
+
+function submitBodyInfo() {
+  const gender = document.getElementById('bodyGender').value
+  const age = document.getElementById('bodyAge').value.trim()
+  const height = document.getElementById('bodyHeight').value.trim()
+  const weight = document.getElementById('bodyWeight').value.trim()
+  const goal = document.getElementById('bodyGoal').value
+
+  if (!age || !height || !weight) {
+    document.getElementById('bodyInfoError').textContent = '请填写完整信息'
+    return
+  }
+  if (isNaN(age) || isNaN(height) || isNaN(weight)) {
+    document.getElementById('bodyInfoError').textContent = '请输入有效数字'
+    return
+  }
+  if (height < 100 || height > 250) {
+    document.getElementById('bodyInfoError').textContent = '身高请在100-250cm之间'
+    return
+  }
+  if (weight < 20 || weight > 300) {
+    document.getElementById('bodyInfoError').textContent = '体重请在20-300kg之间'
+    return
+  }
+
+  document.getElementById('bodyInfoError').textContent = ''
+  const info = { gender, age, height, weight, goal }
+  saveBodyInfo(info)
+  finishQuiz()
 }
 
 // ============ RESULT TABS ============
@@ -184,6 +379,7 @@ function renderResultContent(tab) {
       container.innerHTML = `
         <div class="card">
           <div class="card-title">✅ 宜食食材</div>
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px;line-height:1.6;">${c.principleDetail}</p>
           <ul class="food-list">
             ${c.suitable.map(f => `<li><span class="dot dot-green"></span>${f}</li>`).join('')}
           </ul>
@@ -205,8 +401,11 @@ function renderResultContent(tab) {
           </ul>
         </div>
         <div class="card" style="background:rgba(255,69,58,0.05);border-color:rgba(255,69,58,0.15);">
-          <div class="card-title" style="color:#FF453A;">💡 小贴士</div>
-          <p style="font-size:13px;color:var(--text-secondary);">"忌食"不代表完全不能吃，偶尔少量食用并无大碍，关键在于适度。</p>
+          <div class="card-title" style="color:#FF453A;">💡 忌食原理</div>
+          <p style="font-size:12px;color:var(--text-secondary);line-height:1.7;">
+            忌食指该食物性味与您当前体质相冲，可能加重体质偏颇。如阳虚者忌寒凉食物（西瓜、苦瓜），因为寒凉伤阳气。<br><br>
+            "忌食"不代表完全不能吃，偶尔少量食用并无大碍，关键在于适度。
+          </p>
         </div>
       `
       break
@@ -214,7 +413,7 @@ function renderResultContent(tab) {
       container.innerHTML = `
         <div class="card">
           <div class="card-title">🍳 推荐食疗方案</div>
-          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;">${c.principle}</p>
+          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;line-height:1.7;">${c.principleDetail}</p>
           ${c.recommendFoods.slice(0, 3).map(f => `
             <div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;display:flex;align-items:center;gap:8px;">
               <span style="color:var(--gold);">▸</span>
@@ -223,17 +422,25 @@ function renderResultContent(tab) {
             </div>
           `).join('')}
         </div>
+        <div class="card">
+          <div class="card-title">📜 理论依据</div>
+          <p style="font-size:12px;color:var(--text-secondary);line-height:1.7;">${c.evidence}</p>
+        </div>
       `
       break
     case 'info':
       container.innerHTML = `
         <div class="card">
           <div class="card-title">📖 调养原则</div>
-          <p style="font-size:13px;color:var(--text-secondary);line-height:1.8;">${c.principle}</p>
+          <p style="font-size:13px;color:var(--text-secondary);line-height:1.8;">${c.principleDetail}</p>
         </div>
         <div class="card">
-          <div class="card-title">🧑 体质特征</div>
+          <div class="card-title">🧑 体质特征与成因</div>
           <p style="font-size:13px;color:var(--text-secondary);line-height:1.8;">${c.character}</p>
+        </div>
+        <div class="card">
+          <div class="card-title">📜 古籍依据</div>
+          <p style="font-size:12px;color:var(--text-secondary);line-height:1.7;">${c.evidence}</p>
         </div>
         <div class="card">
           <div class="card-title">📅 季节调养</div>
@@ -242,15 +449,31 @@ function renderResultContent(tab) {
       `
       break
     case 'fitness': {
+      let userAdvice = ''
+      if (userBodyInfo) {
+        const height = parseFloat(userBodyInfo.height) / 100
+        const weight = parseFloat(userBodyInfo.weight)
+        const bmi = (weight / (height * height)).toFixed(1)
+        userAdvice = `<div class="card" style="border-color:rgba(52,199,89,0.2);background:rgba(52,199,89,0.04);">
+          <div class="card-title">💪 ${userBodyInfo.gender === 'male' ? '男' : '女'} · ${userBodyInfo.age}岁 · BMI ${bmi} · ${userBodyInfo.goal === 'muscle' ? '增肌塑形' : userBodyInfo.goal === 'fatloss' ? '减脂瘦身' : userBodyInfo.goal === 'endurance' ? '提升耐力' : '保持健康'}</div>
+          <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;">结合您的体质（${c.name}）和身体数据，为您量身定制：</p>
+          <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-top:6px;">${c.fitnessAdvice}</p>
+          <p style="font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:6px;">⚠️ ${c.exerciseCaution}</p>
+        </div>`
+      }
       container.innerHTML = `
+        ${userAdvice}
         <div class="card">
-          <div class="card-title">💪 ${currentResult.name} · 健身饮食建议</div>
+          <div class="card-title">🏋️ 健身场景饮食方案</div>
           ${FITNESS_WORKOUTS.map(w => `
             <div class="workout-card">
               <div class="wc-type">🏋️ ${w.type}</div>
               <div class="wc-tip">${w.tip}</div>
               <div class="wc-foods">
                 ${w.foods.map(f => `<span>${f}</span>`).join('')}
+              </div>
+              <div style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
+                ${w.detail}
               </div>
             </div>
           `).join('')}
@@ -303,6 +526,15 @@ function renderFoodCard(f) {
     }
   }
 
+  let bodyMatch = ''
+  if (currentResult) {
+    if (f.suitable.includes(currentResult.id)) {
+      bodyMatch = '<span style="color:var(--accent);font-size:11px;">● 适合您的体质</span>'
+    } else if (f.avoid.includes(currentResult.id)) {
+      bodyMatch = '<span style="color:#FF453A;font-size:11px;">● 慎食（与体质相冲）</span>'
+    }
+  }
+
   return `
     <div class="food-result-card">
       <div style="display:flex;justify-content:space-between;align-items:start;">
@@ -314,10 +546,15 @@ function renderFoodCard(f) {
         <span class="tag tag-default">${f.flavor}味</span>
         <span class="tag tag-default">${f.meridian}经</span>
       </div>
+      ${bodyMatch ? `<div style="font-size:12px;margin-bottom:8px;">${bodyMatch}</div>` : ''}
       <div class="food-detail-row"><span class="label">功效</span><span class="value">${f.effect}</span></div>
-      <div class="food-detail-row"><span class="label">适合</span><span class="value">${f.suitable.map(id => getConstitutionById(id).name).join('、') || '一般人群'}</span></div>
-      ${f.avoid.length ? `<div class="food-detail-row"><span class="label">慎食</span><span class="value">${f.avoid.map(id => getConstitutionById(id).name).join('、')}</span></div>` : ''}
-      ${f.suggestion ? `<div class="food-detail-row"><span class="label">建议</span><span class="value">${f.suggestion}</span></div>` : ''}
+      <div class="food-detail-row"><span class="label">营养</span><span class="value">${f.nutrition}</span></div>
+      <div class="food-detail-row"><span class="label">搭配</span><span class="value">${f.pairing}</span></div>
+      <div class="food-detail-row" style="flex-direction:column;gap:4px;">
+        <span class="label" style="width:auto;">作用机理</span>
+        <span class="value" style="font-size:12px;line-height:1.7;">${f.mechanism}</span>
+      </div>
+      <div class="food-detail-row"><span class="label">建议</span><span class="value">${f.suggestion}</span></div>
     </div>
   `
 }
@@ -338,15 +575,44 @@ function renderFoodList(filter) {
   }
 
   const container = document.getElementById('foodResults')
+
+  let bodyNotice = ''
+  if (currentResult && (filter === 'all')) {
+    bodyNotice = `
+      <div class="body-match-notice">
+        当前体质：<strong>${currentResult.name}</strong> · 已标记食材的宜忌关系
+      </div>
+    `
+  } else if (currentResult && filter === 'suitable') {
+    bodyNotice = `
+      <div class="body-match-notice" style="border-color:rgba(52,199,89,0.2);background:rgba(52,199,89,0.06);">
+        ✅ 针对 <strong>${currentResult.name}</strong> 的宜食食材
+      </div>
+    `
+  } else if (currentResult && filter === 'avoid') {
+    bodyNotice = `
+      <div class="body-match-notice" style="border-color:rgba(255,69,58,0.2);background:rgba(255,69,58,0.06);">
+        ❌ 针对 <strong>${currentResult.name}</strong> 的慎食食材
+      </div>
+    `
+  } else if (!currentResult) {
+    bodyNotice = `
+      <div class="body-match-notice">
+        💡 先去 <strong>体质测试</strong>，查询结果将自动匹配您的体质
+      </div>
+    `
+  }
+
   if (filtered.length === 0) {
     container.innerHTML = `
+      ${bodyNotice}
       <div class="empty-state">
         <span class="empty-icon">📭</span>
         <p>暂无匹配结果</p>
       </div>`
     return
   }
-  container.innerHTML = filtered.map(f => renderFoodCard(f)).join('')
+  container.innerHTML = bodyNotice + filtered.map(f => renderFoodCard(f)).join('')
 }
 
 // ============ SEASON ============
@@ -357,6 +623,7 @@ function renderSeasonView() {
     <div class="season-title">🌸 ${rec.season}养生</div>
     <div class="season-sub">${rec.principle}</div>
     <div class="season-tip">${rec.tip}</div>
+    ${rec.reference ? `<div class="season-ref">📜 ${rec.reference}</div>` : ''}
   `
 
   const content = document.getElementById('seasonContent')
@@ -382,7 +649,21 @@ function renderSeasonView() {
 function renderProfileView() {
   document.getElementById('profileAvatar').textContent = '💪'
   document.getElementById('profileName').textContent = '健身用户'
-  document.getElementById('profilePhone').textContent = 'AI中医营养师'
+  let info = 'AI中医营养师'
+  if (userBodyInfo) {
+    const h = parseFloat(userBodyInfo.height) / 100
+    const w = parseFloat(userBodyInfo.weight)
+    const bmi = (w / (h * h)).toFixed(1)
+    info = `${userBodyInfo.height}cm · ${userBodyInfo.weight}kg · BMI ${bmi}`
+  }
+  document.getElementById('profilePhone').textContent = info
+  if (currentResult) {
+    const badge = document.getElementById('currentConstiBadge')
+    if (badge) {
+      const c = getConstitutionById(currentResult.id)
+      badge.innerHTML = `${c.emoji} ${c.name}`
+    }
+  }
 }
 
 // ============ WORKOUT NUTRITION ============
@@ -403,6 +684,9 @@ function renderWorkoutView() {
       <div class="wc-foods">
         ${w.foods.map(f => `<span>${f}</span>`).join('')}
       </div>
+      <div style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
+        ${w.detail}
+      </div>
     </div>
   `).join('')
 
@@ -415,6 +699,11 @@ function renderWorkoutView() {
           ${c.principle}<br><br>
           推荐食材：${c.suitable.slice(0, 5).join('、')}
         </p>
+      </div>
+      <div class="card">
+        <div class="card-title">📜 健身建议</div>
+        <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;">${c.fitnessAdvice}</p>
+        <p style="font-size:12px;color:var(--text-muted);line-height:1.7;margin-top:6px;">⚠️ ${c.exerciseCaution}</p>
       </div>
     `
   } else {
@@ -432,8 +721,18 @@ function renderWorkoutView() {
 function goToFoodSearch() {
   document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'))
   document.querySelector('.tab-item[data-view="viewFoodSearch"]').classList.add('active')
+  if (currentResult) {
+    currentFilter = 'suitable'
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'))
+    document.querySelector('.chip[data-filter="suitable"]').classList.add('active')
+  }
   showView('viewFoodSearch')
   renderFoodList(currentFilter)
+}
+
+function clearBodyData() {
+  localStorage.removeItem('bodyInfo')
+  userBodyInfo = null
 }
 
 document.addEventListener('DOMContentLoaded', init)
