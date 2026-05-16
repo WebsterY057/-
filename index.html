@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#1A2E1A">
-  <title>AI中医营养师 · 健身版</title>
+  <meta name="theme-color" content="#1A221A">
+  <title>AI中医营养师 · 养生版</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -15,8 +15,8 @@
     </div>
 
     <div class="app-header" id="appHeader">
-      <h1 id="appTitle">🏋️ 体质营养</h1>
-      <p id="headerSub">AI中医 · 科学健身饮食</p>
+      <h1 id="appTitle">🌿 体质营养</h1>
+      <p id="headerSub">AI中医 · 健康养生</p>
     </div>
 
     <div class="view-container" id="viewContainer">
@@ -25,9 +25,9 @@
       <div class="view active" id="viewHome">
         <div class="season-banner-mini" id="homeSeasonBanner"></div>
         <div class="hero-section">
-          <div class="hero-profile" id="homeAvatar">💪</div>
-          <h2 id="homeGreeting">科学健身，从吃对开始</h2>
-          <p class="hero-sub" id="homeSub">AI体质辨识 + 中医食疗 × 运动营养，全部功能免费使用</p>
+          <div class="hero-profile" id="homeAvatar">🌿</div>
+          <h2 id="homeGreeting">科学饮食，从吃对开始</h2>
+          <p class="hero-sub" id="homeSub">AI体质辨识 + 中医食疗，科学健康养生</p>
         </div>
 
         <div class="stats-row" id="homeStats">
@@ -40,8 +40,8 @@
             <div class="stat-label">食材库</div>
           </div>
           <div class="stat-item">
-            <div class="stat-num">3</div>
-            <div class="stat-label">健身场景</div>
+            <div class="stat-num">4</div>
+            <div class="stat-label">应季养生</div>
           </div>
         </div>
 
@@ -56,15 +56,15 @@
             <span class="label">食材查询</span>
             <span class="sublabel">性味归经</span>
           </div>
-          <div class="feature-item" onclick="showWorkoutNutrition()">
-            <span class="icon">💪</span>
-            <span class="label">健身饮食</span>
-            <span class="sublabel">增肌减脂</span>
-          </div>
           <div class="feature-item" onclick="switchTab('viewSeason', document.querySelector('.tab-item[data-view=\"viewSeason\"]'))">
             <span class="icon">📅</span>
             <span class="label">时令养生</span>
             <span class="sublabel">应季食疗</span>
+          </div>
+          <div class="feature-item" onclick="startQuiz()">
+            <span class="icon">📊</span>
+            <span class="label">健康评测</span>
+            <span class="sublabel">体质分析</span>
           </div>
         </div>
 
@@ -94,7 +94,7 @@
       <div class="view" id="viewBodyInfo">
         <div class="card">
           <div class="card-title">📏 填写身体信息</div>
-          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">结合身体数据，为您提供更精准的健身饮食方案</p>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">结合身体数据，为您提供更精准的养生建议</p>
 
           <div class="body-info-group">
             <label class="body-info-label">性别</label>
@@ -120,16 +120,6 @@
             </div>
           </div>
 
-          <div class="body-info-group">
-            <label class="body-info-label">健身目标</label>
-            <select class="body-info-input" id="bodyGoal">
-              <option value="muscle">增肌塑形</option>
-              <option value="fatloss">减脂瘦身</option>
-              <option value="endurance">提升耐力</option>
-              <option value="health">保持健康</option>
-            </select>
-          </div>
-
           <div id="bodyInfoError" style="color:#FF453A;font-size:13px;margin:8px 0;"></div>
 
           <button class="btn btn-primary" onclick="submitBodyInfo()">提交分析 →</button>
@@ -148,10 +138,10 @@
 
         <div class="result-tabs" id="resultTabs">
           <div class="result-tab active" data-tab="suitable" onclick="switchResultTab('suitable')">✅ 宜食</div>
-          <div class="result-tab" data-tab="avoid" onclick="switchResultTab('avoid')">❌ 忌食</div>
+          <div class="result-tab" data-tab="avoid" onclick="switchResultTab('avoid')">❌ 慎食</div>
           <div class="result-tab" data-tab="recipe" onclick="switchResultTab('recipe')">🍳 食疗方</div>
           <div class="result-tab" data-tab="info" onclick="switchResultTab('info')">📖 调养</div>
-          <div class="result-tab" data-tab="fitness" onclick="switchResultTab('fitness')">💪 健身</div>
+          <div class="result-tab" data-tab="health" onclick="switchResultTab('health')">🍃 养生</div>
         </div>
 
         <div id="resultContent"></div>
@@ -170,13 +160,13 @@
           <div class="card-title">🥦 药食同源查询</div>
           <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">查看食材的中医属性、营养价值、搭配建议及作用机理</p>
           <div class="search-box">
-            <input type="text" id="foodSearchInput" placeholder="搜索食材（如：牛肉、山药）" onkeydown="if(event.key==='Enter') searchFood()">
+            <input type="text" id="foodSearchInput" placeholder="搜索食材（如：山药、牛肉）" onkeydown="if(event.key==='Enter') searchFood()">
             <button class="search-btn" onclick="searchFood()">搜索</button>
           </div>
           <div class="filter-chips" id="foodFilterChips">
             <div class="chip active" data-filter="all" onclick="filterFoods('all')">全部</div>
             <div class="chip" data-filter="suitable" onclick="filterFoods('suitable')">✅ 宜食</div>
-            <div class="chip" data-filter="avoid" onclick="filterFoods('avoid')">❌ 忌食</div>
+            <div class="chip" data-filter="avoid" onclick="filterFoods('avoid')">❌ 慎食</div>
           </div>
         </div>
         <div id="foodResults">
@@ -196,8 +186,8 @@
       <!-- ========== PROFILE ========== -->
       <div class="view" id="viewProfile">
         <div class="profile-header">
-          <div class="profile-avatar" id="profileAvatar">💪</div>
-          <div class="profile-name" id="profileName">健身用户</div>
+          <div class="profile-avatar" id="profileAvatar">🌿</div>
+          <div class="profile-name" id="profileName">养生用户</div>
           <div class="profile-phone" id="profilePhone">AI中医营养师</div>
           <div id="currentConstiBadge" class="consti-badge"></div>
         </div>
@@ -208,9 +198,9 @@
             <span class="mi-text">体质测试</span>
             <span class="mi-arrow">›</span>
           </div>
-          <div class="menu-item" onclick="showWorkoutNutrition()">
-            <span class="mi-icon">💪</span>
-            <span class="mi-text">健身饮食</span>
+          <div class="menu-item" onclick="switchTab('viewSeason', document.querySelector('.tab-item[data-view=\"viewSeason\"]'))">
+            <span class="mi-icon">📅</span>
+            <span class="mi-text">时令养生</span>
             <span class="mi-arrow">›</span>
           </div>
           <div class="menu-item">
@@ -224,16 +214,6 @@
             <span class="mi-arrow">›</span>
           </div>
         </div>
-      </div>
-
-      <!-- ========== WORKOUT NUTRITION ========== -->
-      <div class="view" id="viewWorkout">
-        <div class="card">
-          <div class="card-title">💪 健身场景饮食</div>
-          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;">根据你的训练目标，推荐最合适的食材搭配</p>
-          <div id="workoutList"></div>
-        </div>
-        <div id="workoutExtra"></div>
       </div>
 
     </div>
