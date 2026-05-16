@@ -342,12 +342,79 @@ function toggleFoodFavorite(name) {
   const idx = favs.foods.indexOf(name)
   if (idx >= 0) { favs.foods.splice(idx, 1) } else { favs.foods.push(name) }
   saveFavorites(favs)
-  // Re-render all visible food cards
   const container = document.getElementById('foodResults')
   if (container && container.querySelector('.food-result-card')) {
     renderFoodList(currentFilter)
   }
   renderDailyFood()
+}
+
+function toggleRecipeFavorite(name) {
+  const favs = getFavorites()
+  const idx = favs.recipes.indexOf(name)
+  if (idx >= 0) { favs.recipes.splice(idx, 1) } else { favs.recipes.push(name) }
+  saveFavorites(favs)
+  const viewResult = document.getElementById('viewResult')
+  if (viewResult && viewResult.classList.contains('active')) {
+    renderResultContent(currentResultTab)
+  }
+  const viewSeason = document.getElementById('viewSeason')
+  if (viewSeason && viewSeason.classList.contains('active')) {
+    renderSeasonView(selectedMonth || undefined)
+  }
+}
+
+function showFavoritesView() {
+  const favs = getFavorites()
+  const foodFavs = favs.foods
+  const recipeFavs = favs.recipes
+
+  let html = '<div class="card"><div class="card-title">⭐ 我的收藏</div>'
+
+  if (foodFavs.length > 0) {
+    html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin:12px 0 8px;">🥦 收藏食材</div>'
+    html += foodFavs.map(name => {
+      const f = FOOD_DATABASE.find(x => x.name === name)
+      if (!f) return ''
+      return `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;display:flex;justify-content:space-between;">
+        <span>${f.name}</span>
+        <span style="color:var(--text-muted);font-size:11px;">${f.property}性 · ${f.meridian}经</span>
+      </div>`
+    }).join('')
+  }
+
+  if (recipeFavs.length > 0) {
+    html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin:12px 0 8px;">🍲 收藏食谱</div>'
+    html += recipeFavs.map(name => {
+      const recipe = RECIPES[name]
+      if (!recipe) return ''
+      return `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;display:flex;justify-content:space-between;align-items:center;">
+        <span>${name}</span>
+        <span onclick="toggleRecipeFavorite('${name}')" style="cursor:pointer;color:var(--warm);font-size:16px;">★</span>
+      </div>`
+    }).join('')
+  }
+
+  if (foodFavs.length === 0 && recipeFavs.length === 0) {
+    html += '<p style="color:var(--text-muted);font-size:13px;padding:20px 0;text-align:center;">还没有收藏内容<br>点击食材或食谱旁的 ☆ 即可收藏</p>'
+  }
+
+  html += '</div>'
+
+  showView('viewProfile')
+  updateTabBar()
+  document.getElementById('profileAvatar').textContent = '⭐'
+  document.getElementById('profileName').textContent = '我的收藏'
+  document.getElementById('profilePhone').textContent = `${foodFavs.length}个食材 · ${recipeFavs.length}个食谱`
+  document.getElementById('currentConstiBadge').innerHTML = ''
+  const menuCard = document.querySelector('#viewProfile .card')
+  if (menuCard) menuCard.style.display = 'none'
+  const existing = document.getElementById('favoritesDetail')
+  if (existing) existing.remove()
+  const div = document.createElement('div')
+  div.id = 'favoritesDetail'
+  div.innerHTML = html
+  document.querySelector('#viewProfile .profile-header').after(div)
 }
 
 function showRevealAnimation(c, callback) {
@@ -735,7 +802,10 @@ function renderResultContent(tab) {
             `
             return `
               <div class="recipe-detail-card">
-                <div class="recipe-detail-name">🍲 ${f}</div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div class="recipe-detail-name">🍲 ${f}</div>
+                  <span onclick="toggleRecipeFavorite('${f}')" style="cursor:pointer;font-size:20px;color:${getFavorites().recipes.includes(f) ? 'var(--warm)' : 'var(--text-muted)'};">${getFavorites().recipes.includes(f) ? '★' : '☆'}</span>
+                </div>
                 <div class="recipe-detail-ingredients">
                   <strong>食材：</strong>${recipe.ingredients.join('、')}
                 </div>
@@ -1033,9 +1103,14 @@ function renderSeasonView(month) {
   `
 
   const content = document.getElementById('seasonContent')
+  const favs = getFavorites()
+  const isFav = favs.recipes.includes(rec.recipe.name)
   content.innerHTML = `
     <div class="recipe-card">
-      <div class="recipe-name">🍲 ${rec.recipe.name}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="recipe-name">🍲 ${rec.recipe.name}</div>
+        <span onclick="toggleRecipeFavorite('${rec.recipe.name}')" style="cursor:pointer;font-size:20px;color:${isFav ? 'var(--warm)' : 'var(--text-muted)'};">${isFav ? '★' : '☆'}</span>
+      </div>
       <div class="recipe-effect">${rec.recipe.effect}</div>
       <div class="recipe-ingredients">
         <strong>食材：</strong><br>
@@ -1064,6 +1139,10 @@ function switchSeason(month) {
 
 // ============ PROFILE ============
 function renderProfileView() {
+  const menuCard = document.querySelector('#viewProfile .card')
+  if (menuCard) menuCard.style.display = ''
+  const existing = document.getElementById('favoritesDetail')
+  if (existing) existing.remove()
   document.getElementById('profileAvatar').textContent = '🌿'
   document.getElementById('profileName').textContent = '养生用户'
   let info = 'AI中医营养师'
