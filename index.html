@@ -28,11 +28,12 @@
           <div class="hero-profile" id="homeAvatar">🌿</div>
           <h2 id="homeGreeting">科学饮食，从吃对开始</h2>
           <p class="hero-sub" id="homeSub">AI体质辨识 + 中医食疗，科学健康养生</p>
+          <div id="homeConstiBadge" style="margin-top:8px;"></div>
         </div>
 
         <div class="stats-row" id="homeStats">
           <div class="stat-item">
-            <div class="stat-num">60+</div>
+            <div class="stat-num" id="statFoodCount">60+</div>
             <div class="stat-label">食材库</div>
           </div>
           <div class="stat-item">
@@ -51,6 +52,7 @@
 
         <div id="dailyFoodCard"></div>
         <div id="checkinSection"></div>
+        <div id="checkinTip"></div>
         <div id="solarTermSection"></div>
 
         <div class="feature-grid">
@@ -58,6 +60,11 @@
             <span class="icon">🧬</span>
             <span class="label">体质测试</span>
             <span class="sublabel">AI精准辨识</span>
+          </div>
+          <div class="feature-item" onclick="showResultView()" id="homeQuickResult" style="display:none;">
+            <span class="icon">📊</span>
+            <span class="label">分析报告</span>
+            <span class="sublabel">体质详情</span>
           </div>
           <div class="feature-item" onclick="switchTab('viewFoodSearch', document.querySelector('.tab-item[data-view=\"viewFoodSearch\"]'))">
             <span class="icon">🥦</span>
@@ -68,11 +75,6 @@
             <span class="icon">📅</span>
             <span class="label">时令养生</span>
             <span class="sublabel">应季食疗</span>
-          </div>
-          <div class="feature-item" onclick="startQuiz()">
-            <span class="icon">📊</span>
-            <span class="label">健康评测</span>
-            <span class="sublabel">体质分析</span>
           </div>
           <div class="feature-item" onclick="showWorkoutNutrition()">
             <span class="icon">🏃</span>

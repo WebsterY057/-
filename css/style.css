@@ -803,6 +803,16 @@ select.body-info-input {
 .checkin-info { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); }
 .checkin-icon { font-size: 16px; }
 .checkin-streak { font-size: 11px; color: var(--warm); margin-left: 4px; }
+.checkin-tip {
+  font-size: 12px;
+  color: var(--accent);
+  background: rgba(168,201,154,0.06);
+  border: 1px solid rgba(168,201,154,0.15);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
 
 .solar-term-card {
   background: var(--bg-card);

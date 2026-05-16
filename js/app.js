@@ -166,8 +166,29 @@ function switchTab(viewId, btn) {
 // ============ HOME ============
 function renderHomeGreeting() {
   document.getElementById('homeAvatar').textContent = '🌿'
-  document.getElementById('homeGreeting').textContent = '今天也要好好吃饭'
-  document.getElementById('homeSub').textContent = 'AI体质辨识 + 中医食疗，科学健康养生'
+  document.getElementById('statFoodCount').textContent = FOOD_DATABASE.length + '+'
+  const quickResult = document.getElementById('homeQuickResult')
+  if (currentResult) {
+    const c = getConstitutionById(currentResult.id)
+    document.getElementById('homeGreeting').textContent = `今日${c.name} · 吃对了吗？`
+    document.getElementById('homeSub').textContent = c.principleDetail.length > 40 ? c.principleDetail.slice(0, 40) + '…' : c.principleDetail
+    const badge = document.getElementById('homeConstiBadge')
+    const consti = getConstitutionById(currentResult.id)
+    badge.innerHTML = `<span class="consti-badge" style="font-size:13px;">${consti.emoji} ${consti.name}</span>`
+    quickResult.style.display = ''
+  } else {
+    document.getElementById('homeGreeting').textContent = '今天也要好好吃饭'
+    document.getElementById('homeSub').textContent = 'AI体质辨识 + 中医食疗，科学健康养生'
+    document.getElementById('homeConstiBadge').innerHTML = ''
+    quickResult.style.display = 'none'
+  }
+}
+
+function showResultView() {
+  if (!currentResult) { startQuiz(); return }
+  showView('viewResult')
+  updateTabBar()
+  renderResultView()
 }
 
 function renderDailyFood() {
@@ -234,6 +255,38 @@ function renderCheckIn() {
       ${checkedIn ? '' : '<button class="btn btn-primary btn-sm" onclick="doCheckIn()">打卡</button>'}
     </div>
   `
+
+  const tipContainer = document.getElementById('checkinTip')
+  if (checkedIn && tipContainer) {
+    const tips = [
+      '🥗 每日一餐素食，给肠胃放个假',
+      '🚶 饭后百步走，活到九十九',
+      '💧 晨起一杯温水，唤醒身体',
+      '🌙 子时前入睡，养肝血最佳',
+      '🧘 每日深呼吸5分钟，调畅气机',
+      '🍵 午后一杯养生茶，缓解疲劳',
+      '☀️ 上午晒背15分钟，补阳气',
+      '🥜 每日一小把坚果，补益脑髓',
+      '🍎 每日一苹果，医生远离我',
+      '🧠 睡前热水泡脚，安神助眠',
+      '🥬 每餐有绿色蔬菜，补充维生素',
+      '🎵 听舒缓音乐，调畅情志'
+    ]
+    const tipIndex = Math.abs(hashString(today)) % tips.length
+    tipContainer.innerHTML = `<div class="checkin-tip">💡 ${tips[tipIndex]}</div>`
+  } else if (tipContainer) {
+    tipContainer.innerHTML = ''
+  }
+}
+
+function hashString(s) {
+  let hash = 0
+  for (let i = 0; i < s.length; i++) {
+    const char = s.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash |= 0
+  }
+  return hash
 }
 
 function doCheckIn() {
@@ -300,6 +353,24 @@ function shareConstitution() {
   } else {
     navigator.clipboard.writeText(text).then(() => alert('体质报告已复制，快去分享给朋友吧！')).catch(() => {})
   }
+}
+
+function copyShoppingList(recipeName) {
+  const recipe = RECIPES[recipeName]
+  if (!recipe) { alert('未找到食谱数据'); return }
+  const text = `🛒 ${recipeName} 购物清单\n\n${recipe.ingredients.map((i, idx) => `${idx + 1}. ${i}`).join('\n')}`
+  navigator.clipboard.writeText(text).then(() => {
+    alert('✅ 购物清单已复制')
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea')
+    ta.value = text
+    document.body.appendChild(ta)
+    ta.select()
+    document.execCommand('copy')
+    document.body.removeChild(ta)
+    alert('✅ 购物清单已复制')
+  })
 }
 
 // ============ CONSTITUTION LIST ============
@@ -637,6 +708,7 @@ function renderResultContent(tab) {
                   <strong>做法：</strong>
                   <ol>${recipe.steps.map(s => `<li>${s}</li>`).join('')}</ol>
                 </div>
+                <button class="btn btn-sm" style="margin-top:10px;background:var(--surface);color:var(--primary);border:1px solid var(--border-light);" onclick="copyShoppingList('${f}')">📋 复制购物清单</button>
               </div>
             `
           }).join('')}
@@ -934,6 +1006,7 @@ function renderSeasonView(month) {
         <strong>食材：</strong><br>
         ${rec.recipe.ingredients.map(i => `· ${i}<br>`).join('')}
       </div>
+      <button class="btn btn-sm" style="margin-top:10px;background:var(--surface);color:var(--primary);border:1px solid var(--border-light);" onclick="copyShoppingList('${rec.recipe.name}')">📋 复制购物清单</button>
     </div>
     <div class="card">
       <div class="card-title">🥬 当季推荐食材</div>
