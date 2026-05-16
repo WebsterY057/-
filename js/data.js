@@ -244,6 +244,87 @@ const CONSTITUTION_QUESTIONS = [
       { text: '偶尔便溏或便秘', scores: { qixu: 1, tanshi: 1, shire: 1 } },
       { text: '经常便溏黏腻或便秘', scores: { qixu: 1, tanshi: 2, shire: 1 } }
     ]
+  },
+  {
+    id: 10,
+    text: '您是否容易感冒或生病？',
+    options: [
+      { text: '很少生病', scores: { pinghe: 1, qixu: -2 } },
+      { text: '偶尔会感冒', scores: { qixu: 1 } },
+      { text: '经常感冒，恢复慢', scores: { qixu: 2, tebing: 1 } }
+    ]
+  },
+  {
+    id: 11,
+    text: '您是否感觉喉咙有异物感，咳不出咽不下？',
+    options: [
+      { text: '没有', scores: { pinghe: 1, qiyu: -1 } },
+      { text: '偶尔有', scores: { qiyu: 1, tanshi: 1 } },
+      { text: '经常有，爱清嗓子', scores: { qiyu: 2, tanshi: 1 } }
+    ]
+  },
+  {
+    id: 12,
+    text: '您是否容易腰膝酸软？',
+    options: [
+      { text: '不会', scores: { pinghe: 1, yangxu: -1, yinxu: -1 } },
+      { text: '偶尔会', scores: { yangxu: 1, yinxu: 1 } },
+      { text: '经常腰膝无力', scores: { yangxu: 2, yinxu: 1 } }
+    ]
+  },
+  {
+    id: 13,
+    text: '您是否感到头重身困，像裹了湿布？',
+    options: [
+      { text: '不会，头脑清爽', scores: { pinghe: 1, tanshi: -1 } },
+      { text: '偶尔昏沉', scores: { tanshi: 1 } },
+      { text: '经常头重脚轻', scores: { tanshi: 2 } }
+    ]
+  },
+  {
+    id: 14,
+    text: '您是否手心脚心发热，想摸凉的东西？',
+    options: [
+      { text: '不会', scores: { pinghe: 1, yinxu: -1 } },
+      { text: '偶尔发热', scores: { yinxu: 1 } },
+      { text: '经常五心烦热', scores: { yinxu: 2 } }
+    ]
+  },
+  {
+    id: 15,
+    text: '您是否夜尿频繁，影响睡眠？',
+    options: [
+      { text: '不起夜', scores: { pinghe: 1, yangxu: -1 } },
+      { text: '偶尔起夜1次', scores: { yangxu: 1 } },
+      { text: '每晚2次以上', scores: { yangxu: 2, qixu: 1 } }
+    ]
+  },
+  {
+    id: 16,
+    text: '您是否皮肤容易起风团、红疹或瘙痒？',
+    options: [
+      { text: '不会', scores: { pinghe: 1, tebing: -1 } },
+      { text: '偶尔会', scores: { tebing: 1, shire: 1 } },
+      { text: '经常过敏发痒', scores: { tebing: 2 } }
+    ]
+  },
+  {
+    id: 17,
+    text: '您是否常感胸闷、喜欢叹气？',
+    options: [
+      { text: '没有', scores: { pinghe: 1, qiyu: -1 } },
+      { text: '偶尔胸闷叹气', scores: { qiyu: 1, xueyu: 1 } },
+      { text: '经常胸闷需要深呼吸', scores: { qiyu: 2, xueyu: 1 } }
+    ]
+  },
+  {
+    id: 18,
+    text: '您的大便是否黏滞不爽，冲不干净？',
+    options: [
+      { text: '大便成形，不黏', scores: { pinghe: 1, tanshi: -1, shire: -1 } },
+      { text: '偶尔黏腻', scores: { tanshi: 1, shire: 1 } },
+      { text: '经常黏腻臭秽', scores: { shire: 2, tanshi: 1 } }
+    ]
   }
 ]
 
@@ -275,7 +356,7 @@ const FOOD_DATABASE = [
   {
     name: '红枣', type: '果品', property: '温', flavor: '甘', meridian: '脾胃',
     effect: '补中益气、养血安神',
-    nutrition: '富含铁、维生素C（含量是苹果的100倍）、环磷酸腺苷。每100g含蛋白质3.2g、铁2.3mg。',
+    nutrition: '富含铁、维生素C（鲜枣维C含量约苹果的15倍）、环磷酸腺苷。每100g含蛋白质3.2g、铁2.3mg。',
     pairing: '宜配枸杞（气血双补）、生姜（温中不腻）、桂圆（增强安神）。泡茶煮汤皆宜。',
     mechanism: '《本草纲目》："枣为脾之果。"其含有的环磷酸腺苷（cAMP）可增强心肌收缩力、改善睡眠。维生素C促进铁吸收，协同补血。每日3-5枚为度，过食生湿。',
     suitable: ['qixu', 'xueyu', 'pinghe'], avoid: ['shire', 'tanshi'], suggestion: '湿热体质少食，每日3-5枚为宜'
@@ -510,21 +591,21 @@ function getFoodsForConstitution(constitutionId) {
 }
 
 function calculateResult(scores) {
-  const maxScore = Math.max(...Object.values(scores))
-  if (maxScore <= 1) return 'pinghe'
-
-  const candidates = Object.entries(scores)
-    .filter(([id, score]) => score === maxScore && id !== 'pinghe')
-
-  if (candidates.length === 1) return candidates[0][0]
-
-  const topTypes = Object.entries(scores)
+  const nonPinghe = Object.entries(scores)
+    .filter(([id]) => id !== 'pinghe')
     .sort((a, b) => b[1] - a[1])
-    .filter(([id, score]) => score > 0 && id !== 'pinghe')
-    .slice(0, 2)
-    .map(([id]) => id)
 
-  return topTypes[0] || 'pinghe'
+  if (nonPinghe.length > 0 && nonPinghe[0][1] >= 2) {
+    return nonPinghe[0][0]
+  }
+
+  if (scores.pinghe >= 2) return 'pinghe'
+
+  if (nonPinghe.length > 0 && nonPinghe[0][1] > 0) {
+    return nonPinghe[0][0]
+  }
+
+  return 'pinghe'
 }
 
 const FITNESS_WORKOUTS = [
@@ -548,9 +629,11 @@ const FITNESS_WORKOUTS = [
   }
 ]
 
-function getTodayRecommendation() {
-  const now = new Date()
-  const month = now.getMonth() + 1
+function getTodayRecommendation(month) {
+  if (month === undefined) {
+    const now = new Date()
+    month = now.getMonth() + 1
+  }
 
   if (month >= 3 && month <= 5) {
     return {

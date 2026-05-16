@@ -6,14 +6,51 @@ let currentResultTab = 'suitable'
 let currentConstitutionId = null
 let userBodyInfo = null
 let quizScores = null
+let selectedMonth = null
 
 function init() {
   loadBodyInfo()
+  restoreAppState()
   renderConstiList()
   renderSeasonView()
   renderMiniSeasonBanner()
   updateTabBar()
   renderHomeGreeting()
+}
+
+function restoreAppState() {
+  try {
+    const saved = localStorage.getItem('appState')
+    if (saved) {
+      const state = JSON.parse(saved)
+      if (state.currentResult) currentResult = state.currentResult
+      if (state.quizAnswers) quizAnswers = state.quizAnswers
+      if (state.currentQuiz !== undefined && state.currentQuiz !== null) currentQuiz = state.currentQuiz
+      if (state.quizScores) quizScores = state.quizScores
+      if (state.currentResultTab) currentResultTab = state.currentResultTab
+      if (state.currentConstitutionId) currentConstitutionId = state.currentConstitutionId
+      if (state.currentFilter) currentFilter = state.currentFilter
+      if (state.currentTheme) {
+        document.documentElement.setAttribute('data-theme', state.currentTheme)
+      }
+    }
+  } catch (e) {}
+}
+
+function saveAppState() {
+  try {
+    const state = {
+      currentResult,
+      quizAnswers,
+      currentQuiz,
+      quizScores,
+      currentResultTab,
+      currentConstitutionId,
+      currentFilter,
+      currentTheme: document.documentElement.getAttribute('data-theme') || ''
+    }
+    localStorage.setItem('appState', JSON.stringify(state))
+  } catch (e) {}
 }
 
 function renderMiniSeasonBanner() {
@@ -86,7 +123,7 @@ function switchTab(viewId, btn) {
   document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'))
   btn.classList.add('active')
   showView(viewId)
-  if (viewId === 'viewSeason') renderSeasonView()
+  if (viewId === 'viewSeason') renderSeasonView(selectedMonth || undefined)
   if (viewId === 'viewFoodSearch') {
     if (currentResult) {
       currentFilter = 'suitable'
@@ -129,11 +166,12 @@ function showConstitution(id) {
     document.getElementById('resultDesc').textContent = c.description
     currentResultTab = 'suitable'
     document.querySelectorAll('.result-tab').forEach(t => t.classList.remove('active'))
-    document.querySelector('.result-tab[data-tab="suitable"]').classList.add('active')
+    document.querySelector(`.result-tab[data-tab="suitable"]`).classList.add('active')
     renderResultContent('suitable')
     renderConstitutionSummary()
     renderScoreBreakdown()
     updateTabBar()
+    saveAppState()
     return
   }
   showView('viewResult')
@@ -149,6 +187,7 @@ function showConstitution(id) {
   renderConstitutionSummary()
   renderScoreBreakdown()
   updateTabBar()
+  saveAppState()
 }
 
 function renderConstitutionSummary() {
@@ -204,6 +243,7 @@ function startQuiz() {
   showView('viewQuiz')
   renderQuestion()
   updateTabBar()
+  saveAppState()
 }
 
 function renderQuestion() {
@@ -225,6 +265,7 @@ function renderQuestion() {
 
 function selectOption(idx) {
   quizAnswers[currentQuiz] = idx
+  saveAppState()
   renderQuestion()
 }
 
@@ -369,6 +410,7 @@ function switchResultTab(tab) {
   document.querySelectorAll('.result-tab').forEach(t => t.classList.remove('active'))
   document.querySelector(`.result-tab[data-tab="${tab}"]`).classList.add('active')
   renderResultContent(tab)
+  saveAppState()
 }
 
 function renderResultContent(tab) {
@@ -500,10 +542,13 @@ function renderResultContent(tab) {
         ${userAdvice}
         <div class="card">
           <div class="card-title">🏃 运动营养饮食方案</div>
-          ${FITNESS_WORKOUTS.map(w => `
+          ${FITNESS_WORKOUTS.map(w => {
+            const constiTip = currentResult ? getConstitutionWorkoutTip(currentResult.id) : ''
+            return `
             <div class="workout-card">
               <div class="wc-type">🏋️ ${w.type}</div>
               <div class="wc-tip">${w.tip}</div>
+              ${constiTip ? `<div style="font-size:11px;color:var(--accent);margin-bottom:8px;">💡 ${currentResult.name}提示：${constiTip}</div>` : ''}
               <div class="wc-foods">
                 ${w.foods.map(f => `<span>${f}</span>`).join('')}
               </div>
@@ -511,7 +556,7 @@ function renderResultContent(tab) {
                 ${w.detail}
               </div>
             </div>
-          `).join('')}
+          `}).join('')}
         </div>
       `
       break
@@ -599,6 +644,7 @@ function filterFoods(filter) {
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'))
   document.querySelector(`.chip[data-filter="${filter}"]`).classList.add('active')
   renderFoodList(filter)
+  saveAppState()
 }
 
 function renderFoodList(filter) {
@@ -651,11 +697,13 @@ function renderFoodList(filter) {
 }
 
 // ============ SEASON ============
-function renderSeasonView() {
-  const rec = getTodayRecommendation()
+function renderSeasonView(month) {
+  const rec = getTodayRecommendation(month !== undefined ? month : undefined)
+  const seasonEmojis = { '春季': '🌸', '夏季': '☀️', '秋季': '🍂', '冬季': '❄️' }
+  const emoji = seasonEmojis[rec.season] || '🌸'
   const banner = document.getElementById('seasonBanner')
   banner.innerHTML = `
-    <div class="season-title">🌸 ${rec.season}养生</div>
+    <div class="season-title">${emoji} ${rec.season}养生</div>
     <div class="season-sub">${rec.principle}</div>
     <div class="season-tip">${rec.tip}</div>
     ${rec.reference ? `<div class="season-ref">📜 ${rec.reference}</div>` : ''}
@@ -678,6 +726,16 @@ function renderSeasonView() {
       </div>
     </div>
   `
+
+  document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'))
+  const activeSeasonBtn = document.querySelector(`.season-btn[data-month="${rec.season === '春季' ? 3 : rec.season === '夏季' ? 6 : rec.season === '秋季' ? 9 : 12}"]`)
+  if (activeSeasonBtn) activeSeasonBtn.classList.add('active')
+}
+
+function switchSeason(month) {
+  selectedMonth = month
+  renderSeasonView(month)
+  saveAppState()
 }
 
 // ============ PROFILE ============
@@ -701,7 +759,34 @@ function renderProfileView() {
   }
 }
 
+// ============ THEME TOGGLE ============
+function toggleTheme() {
+  const root = document.documentElement
+  const current = root.getAttribute('data-theme') || ''
+  if (current === 'light') {
+    root.removeAttribute('data-theme')
+  } else {
+    root.setAttribute('data-theme', 'light')
+  }
+  saveAppState()
+}
+
 // ============ WORKOUT NUTRITION ============
+function getConstitutionWorkoutTip(constiId) {
+  const tips = {
+    pinghe: '各计划均可，保持均衡',
+    qixu: '增肌可选黄芪入膳补气，减脂避免过度消耗',
+    yangxu: '增肌搭配温补食材（羊肉、韭菜），减脂避免寒凉',
+    yinxu: '增肌注意滋阴（银耳、百合），避免大汗耗阴',
+    tanshi: '减脂优先，配合薏米赤小豆祛湿',
+    shire: '减脂为主，搭配绿豆薏米清热利湿',
+    xueyu: '所有计划加山楂/黑木耳活血辅助',
+    qiyu: '选择趣味性强的运动方案，搭配玫瑰花茶',
+    tebing: '室内运动为主，食材注意规避过敏原'
+  }
+  return tips[constiId] || ''
+}
+
 function showWorkoutNutrition() {
   showView('viewWorkout')
   updateTabBar()
@@ -712,10 +797,13 @@ function renderWorkoutView() {
   const list = document.getElementById('workoutList')
   const extra = document.getElementById('workoutExtra')
 
-  list.innerHTML = FITNESS_WORKOUTS.map(w => `
+  list.innerHTML = FITNESS_WORKOUTS.map(w => {
+    const constiTip = currentResult ? getConstitutionWorkoutTip(currentResult.id) : ''
+    return `
     <div class="workout-card">
       <div class="wc-type">🏋️ ${w.type}饮食</div>
       <div class="wc-tip">${w.tip}</div>
+      ${constiTip ? `<div style="font-size:11px;color:var(--accent);margin-bottom:8px;">💡 ${currentResult.name}提示：${constiTip}</div>` : ''}
       <div class="wc-foods">
         ${w.foods.map(f => `<span>${f}</span>`).join('')}
       </div>
@@ -723,7 +811,7 @@ function renderWorkoutView() {
         ${w.detail}
       </div>
     </div>
-  `).join('')
+  `}).join('')
 
   if (currentResult) {
     const c = getConstitutionById(currentResult.id)
@@ -766,10 +854,12 @@ function goToFoodSearch() {
 }
 
 function clearBodyData() {
+  if (!confirm('确定要清除所有身体数据吗？')) return
   localStorage.removeItem('bodyInfo')
   userBodyInfo = null
   const badge = document.getElementById('currentConstiBadge')
   if (badge) badge.innerHTML = ''
+  saveAppState()
 }
 
 document.addEventListener('DOMContentLoaded', init)

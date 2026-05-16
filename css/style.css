@@ -18,6 +18,26 @@
   --text-muted: #6B6558;
   --border: rgba(139, 170, 122, 0.1);
   --border-light: rgba(139, 170, 122, 0.18);
+
+[data-theme="light"] {
+  --bg: #F5F2ED;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F0EDE6;
+  --surface: #E8E4DC;
+  --primary: #5A7D4A;
+  --primary-dark: #4A6A3E;
+  --primary-glow: rgba(90, 125, 74, 0.15);
+  --accent: #6B8F5E;
+  --accent-glow: rgba(107, 143, 94, 0.2);
+  --warm: #8B7355;
+  --warm-glow: rgba(139, 115, 85, 0.1);
+  --jade: #4A7A62;
+  --text: #2A2824;
+  --text-secondary: #5A5548;
+  --text-muted: #8A8478;
+  --border: rgba(90, 125, 74, 0.15);
+  --border-light: rgba(90, 125, 74, 0.25);
+}
   --danger: #D45A5A;
   --warning: #C4A043;
   --radius: 16px;
@@ -696,6 +716,44 @@ select.body-info-input {
   padding: 4px 12px;
   font-size: 12px;
   color: var(--text-secondary);
+}
+
+.season-switch {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  overflow-x: auto;
+}
+.season-btn {
+  flex: 1;
+  padding: 8px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.season-btn.active {
+  background: var(--primary);
+  color: #0E1210;
+  border-color: var(--primary);
+  font-weight: 600;
+}
+.season-btn:hover:not(.active) { border-color: var(--primary); color: var(--text); }
+
+.disclaimer {
+  margin-top: 20px;
+  padding: 12px 16px;
+  background: rgba(196, 169, 125, 0.06);
+  border: 1px solid rgba(196, 169, 125, 0.12);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  text-align: center;
 }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
