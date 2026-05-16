@@ -9,6 +9,7 @@ let quizScores = null
 let selectedMonth = null
 let propertyFilter = 'all'
 let meridianFilter = 'all'
+let recipeFilter = 'all'
 
 function init() {
   loadBodyInfo()
@@ -88,14 +89,15 @@ function showView(viewId) {
   document.getElementById(viewId).classList.add('active')
 
   const headerSubtitles = {
-    viewHome: 'AI中医 · 健康养生',
-    viewQuiz: '中医体质辨识',
-    viewBodyInfo: '填写身体信息',
+    viewHome: '今天也要好好养生',
+    viewQuiz: '9种体质 · 18道题',
+    viewBodyInfo: '身体数据 · 精准分析',
     viewResult: '体质分析报告',
-    viewFoodSearch: '药食同源食材库',
-    viewSeason: '应季食疗推荐',
+    viewFoodSearch: '147种食材 · 性味归经',
+    viewSeason: '24节气 · 顺时养生',
     viewProfile: '个人中心',
-    viewWorkout: '运动营养方案'
+    viewWorkout: '运动营养方案',
+    viewRecipes: '46道食疗 · 搜索筛选'
   }
   const headerTitles = {
     viewHome: '🌿 体质营养',
@@ -105,7 +107,8 @@ function showView(viewId) {
     viewFoodSearch: '🔍 食材查询',
     viewSeason: '📅 时令养生',
     viewProfile: '👤 个人中心',
-    viewWorkout: '🏃 运动营养'
+    viewWorkout: '🏃 运动营养',
+    viewRecipes: '🍳 食疗食谱'
   }
   const sub = document.getElementById('headerSub')
   const title = document.getElementById('appTitle')
@@ -123,7 +126,8 @@ function updateTabBar() {
     viewHome: 'viewHome', viewQuiz: 'viewQuiz', viewBodyInfo: 'viewQuiz',
     viewFoodSearch: 'viewFoodSearch',
     viewProfile: 'viewProfile', viewResult: 'viewQuiz',
-    viewSeason: 'viewHome', viewWorkout: 'viewHome'
+    viewSeason: 'viewHome', viewWorkout: 'viewHome',
+    viewRecipes: 'viewRecipes'
   }
   const mapped = tabMap[viewId] || 'viewHome'
   document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'))
@@ -161,6 +165,7 @@ function switchTab(viewId, btn) {
     renderFoodList(currentFilter)
   }
   if (viewId === 'viewProfile') renderProfileView()
+  if (viewId === 'viewRecipes') renderRecipeView()
 }
 
 // ============ HOME ============
@@ -1283,6 +1288,67 @@ function goToFoodSearch() {
   }
   showView('viewFoodSearch')
   renderFoodList(currentFilter)
+}
+
+// ============ RECIPES BROWSE ============
+function filterRecipes(consti) {
+  recipeFilter = consti
+  document.querySelectorAll('#recipeConstiChips .chip').forEach(c => c.classList.remove('active'))
+  document.querySelector(`.chip[data-consti="${consti}"]`).classList.add('active')
+  renderRecipeView()
+}
+
+function renderRecipeView() {
+  const container = document.getElementById('recipeResults')
+  if (!container) return
+
+  const query = (document.getElementById('recipeSearchInput').value || '').trim().toLowerCase()
+
+  // Build reverse index: recipe name → which constitutions recommend it
+  const recipeConsti = {}
+  CONSTITUTIONS.forEach(c => {
+    ;(c.recommendFoods || []).forEach(r => {
+      if (!recipeConsti[r]) recipeConsti[r] = []
+      if (!recipeConsti[r].includes(c.id)) recipeConsti[r].push(c.id)
+    })
+  })
+
+  let recipes = Object.entries(RECIPES)
+
+  // Filter by constitution
+  if (recipeFilter !== 'all') {
+    recipes = recipes.filter(([name]) => (recipeConsti[name] || []).includes(recipeFilter))
+  }
+
+  // Filter by search query
+  if (query) {
+    recipes = recipes.filter(([name]) => name.toLowerCase().includes(query))
+  }
+
+  if (recipes.length === 0) {
+    container.innerHTML = '<div class="empty-state"><span class="empty-icon">🍳</span><p>暂无匹配食谱</p></div>'
+    return
+  }
+
+  const favs = getFavorites()
+  container.innerHTML = recipes.map(([name, recipe]) => {
+    const constiTags = (recipeConsti[name] || []).map(cId => {
+      const c = getConstitutionById(cId)
+      return c ? `<span style="background:var(--surface);border:1px solid var(--border);padding:2px 8px;border-radius:10px;font-size:10px;color:var(--text-muted);">${c.emoji} ${c.name}</span>` : ''
+    }).join('')
+    const isFav = favs.recipes.includes(name)
+    return `
+      <div class="recipe-card" style="margin-bottom:10px;cursor:pointer;" onclick="showRecipeDetail('${name}')">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="recipe-name" style="font-size:15px;">🍲 ${name}</div>
+          <span onclick="event.stopPropagation();toggleRecipeFavorite('${name}')" style="cursor:pointer;font-size:18px;color:${isFav ? 'var(--warm)' : 'var(--text-muted)'};">${isFav ? '★' : '☆'}</span>
+        </div>
+        <div class="recipe-effect" style="font-size:12px;">${recipe.effect || ''}</div>
+        <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;">${constiTags}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">${recipe.ingredients.length}种食材 · ${recipe.steps.length}步</div>
+      </div>
+    `
+  }).join('')
 }
 
 function clearBodyData() {

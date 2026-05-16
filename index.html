@@ -284,6 +284,18 @@
         <div id="workoutExtra"></div>
       </div>
 
+      <!-- ========== RECIPES ========== -->
+      <div class="view" id="viewRecipes">
+        <div style="margin-bottom:12px;">
+          <input type="text" id="recipeSearchInput" class="search-input" placeholder="搜索食谱名称..." oninput="renderRecipeView()" style="width:100%;padding:10px 14px;border:1px solid var(--border-light);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);font-size:14px;outline:none;">
+        </div>
+        <div class="filter-chips" id="recipeConstiChips">
+          <div class="chip active" data-consti="all" onclick="filterRecipes('all')">全部</div>
+          ${CONSTITUTIONS.map(c => `<div class="chip" data-consti="${c.id}" onclick="filterRecipes('${c.id}')">${c.emoji} ${c.name}</div>`).join('')}
+        </div>
+        <div id="recipeResults"></div>
+      </div>
+
     </div>
 
     <!-- Tab Bar -->
@@ -299,6 +311,10 @@
       <button class="tab-item" data-view="viewFoodSearch" onclick="switchTab('viewFoodSearch', this)">
         <span class="tab-icon">🔍</span>
         <span class="tab-label">查询</span>
+      </button>
+      <button class="tab-item" data-view="viewRecipes" onclick="switchTab('viewRecipes', this)">
+        <span class="tab-icon">🍳</span>
+        <span class="tab-label">食谱</span>
       </button>
       <button class="tab-item" data-view="viewProfile" onclick="switchTab('viewProfile', this)">
         <span class="tab-icon">👤</span>
