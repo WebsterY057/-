@@ -1,0 +1,6 @@
+<web-view src="{{h5Url}}" bindmessage="onMessage" bindload="onLoadSuccess" binderror="onLoadError"></web-view>
+<view class="error-tip" wx:if="{{error}}">
+  <text>加载失败，请检查网络连接</text>
+  <text class="error-detail">{{error}}</text>
+  <button class="retry-btn" bindtap="reload">重新加载</button>
+</view>

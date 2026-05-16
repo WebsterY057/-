@@ -6,14 +6,17 @@ let currentResultTab = 'suitable'
 let currentConstitutionId = null
 let userBodyInfo = null
 let quizScores = null
+let quizSymptomScores = null
 let selectedMonth = null
 let propertyFilter = 'all'
 let meridianFilter = 'all'
 let recipeFilter = 'all'
+let recipeConstiIndex = null
 
 function init() {
   loadBodyInfo()
   restoreAppState()
+  buildRecipeIndex()
   renderConstiList()
   renderSeasonView()
   renderMiniSeasonBanner()
@@ -22,6 +25,16 @@ function init() {
   renderSolarTerm()
   updateTabBar()
   renderHomeGreeting()
+}
+
+function buildRecipeIndex() {
+  recipeConstiIndex = {}
+  CONSTITUTIONS.forEach(c => {
+    ;(c.recommendFoods || []).forEach(r => {
+      if (!recipeConstiIndex[r]) recipeConstiIndex[r] = []
+      if (!recipeConstiIndex[r].includes(c.id)) recipeConstiIndex[r].push(c.id)
+    })
+  })
 }
 
 function restoreAppState() {
@@ -172,6 +185,8 @@ function switchTab(viewId, btn) {
 function renderHomeGreeting() {
   document.getElementById('homeAvatar').textContent = '🌿'
   document.getElementById('statFoodCount').textContent = FOOD_DATABASE.length + '+'
+  document.getElementById('statConstiCount').textContent = CONSTITUTIONS.length
+  document.getElementById('statSeasonCount').textContent = '4'
   const quickResult = document.getElementById('homeQuickResult')
   if (currentResult) {
     const c = getConstitutionById(currentResult.id)
@@ -575,6 +590,10 @@ function startQuiz() {
   currentQuiz = 0
   quizAnswers = CONSTITUTION_QUESTIONS.map(() => null)
   quizScores = null
+  quizSymptomScores = null
+  document.getElementById('symptomCard').style.display = 'none'
+  document.getElementById('symptomInput').value = ''
+  document.getElementById('quizCard').style.display = ''
   showView('viewQuiz')
   renderQuestion()
   updateTabBar()
@@ -606,7 +625,10 @@ function selectOption(idx) {
 
 function nextQuestion() {
   if (currentQuiz === CONSTITUTION_QUESTIONS.length - 1) {
-    showBodyInfoForm()
+    document.getElementById('quizCard').style.display = 'none'
+    document.getElementById('symptomCard').style.display = ''
+    showView('viewQuiz')
+    updateTabBar()
     return
   }
   currentQuiz++
@@ -620,6 +642,38 @@ function prevQuestion() {
   }
 }
 
+function skipSymptom() {
+  document.getElementById('quizCard').style.display = ''
+  document.getElementById('symptomCard').style.display = 'none'
+  showBodyInfoForm()
+}
+
+function submitSymptom() {
+  const text = document.getElementById('symptomInput').value.trim()
+  if (text) {
+    const symptomScores = {}
+    CONSTITUTIONS.forEach(c => { symptomScores[c.id] = 0 })
+    SYMPTOM_KEYWORDS.forEach(group => {
+      const matched = group.keywords.some(kw => {
+        const idx = text.indexOf(kw)
+        if (idx === -1) return false
+        // Check negation: look behind for negation words within 2 chars before keyword
+        const before = text.slice(Math.max(0, idx - 3), idx)
+        return !(group.negations || []).some(neg => before.includes(neg))
+      })
+      if (matched) {
+        Object.entries(group.scores).forEach(([type, val]) => {
+          symptomScores[type] = (symptomScores[type] || 0) + val
+        })
+      }
+    })
+    quizSymptomScores = symptomScores
+  }
+  document.getElementById('quizCard').style.display = ''
+  document.getElementById('symptomCard').style.display = 'none'
+  showBodyInfoForm()
+}
+
 function finishQuiz() {
   const scores = {}
   CONSTITUTIONS.forEach(c => { scores[c.id] = 0 })
@@ -630,6 +684,12 @@ function finishQuiz() {
       scores[type] = (scores[type] || 0) + val
     })
   })
+  // Incorporate symptom keyword scores
+  if (quizSymptomScores) {
+    Object.entries(quizSymptomScores).forEach(([type, val]) => {
+      scores[type] = (scores[type] || 0) + val
+    })
+  }
   quizScores = scores
   const resultId = calculateResult(scores)
   const c = getConstitutionById(resultId)
@@ -669,20 +729,26 @@ function renderScoreBreakdown() {
     return
   }
 
+  const displayScores = currentResult.scores.slice(0, 5)
+  const rawValues = displayScores.map(([, s]) => s)
+  const minVal = Math.min(...rawValues, 0)
+  const maxVal = Math.max(...rawValues, 1)
+  const range = maxVal - minVal || 1
+
   let scoreHTML = `
     <div class="card">
       <div class="card-title">📊 体质倾向评分</div>
       <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">分值越高，体质倾向越明显</div>
   `
 
-  currentResult.scores.slice(0, 5).forEach(([id, score]) => {
-    const pc = Math.min(100, Math.max(0, (score + 4) / 8 * 100))
+  displayScores.forEach(([id, score]) => {
+    const pc = Math.max(5, ((score - minVal) / range) * 100)
     const consti = getConstitutionById(id)
     scoreHTML += `
       <div style="margin-bottom:8px;">
         <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
           <span style="color:var(--text-secondary);">${consti.emoji} ${consti.name}</span>
-          <span style="color:${pc > 50 ? 'var(--primary)' : 'var(--text-muted)'};">${score > 0 ? '+' : ''}${score}</span>
+          <span style="color:${consti.id === currentResult.id ? 'var(--primary)' : 'var(--text-muted)'};">${score > 0 ? '+' : ''}${score}</span>
         </div>
         <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">
           <div style="height:100%;width:${pc}%;background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:4px;transition:width 0.5s;"></div>
@@ -1302,22 +1368,19 @@ function renderRecipeView() {
   const container = document.getElementById('recipeResults')
   if (!container) return
 
+  // Generate chips if empty
+  const chipsContainer = document.getElementById('recipeConstiChips')
+  if (chipsContainer && !chipsContainer.hasChildNodes()) {
+    chipsContainer.innerHTML = `<div class="chip active" data-consti="all" onclick="filterRecipes('all')">全部</div>
+      ${CONSTITUTIONS.map(c => `<div class="chip" data-consti="${c.id}" onclick="filterRecipes('${c.id}')">${c.emoji} ${c.name}</div>`).join('')}`
+  }
+
   const query = (document.getElementById('recipeSearchInput').value || '').trim().toLowerCase()
-
-  // Build reverse index: recipe name → which constitutions recommend it
-  const recipeConsti = {}
-  CONSTITUTIONS.forEach(c => {
-    ;(c.recommendFoods || []).forEach(r => {
-      if (!recipeConsti[r]) recipeConsti[r] = []
-      if (!recipeConsti[r].includes(c.id)) recipeConsti[r].push(c.id)
-    })
-  })
-
   let recipes = Object.entries(RECIPES)
 
   // Filter by constitution
   if (recipeFilter !== 'all') {
-    recipes = recipes.filter(([name]) => (recipeConsti[name] || []).includes(recipeFilter))
+    recipes = recipes.filter(([name]) => (recipeConstiIndex[name] || []).includes(recipeFilter))
   }
 
   // Filter by search query
@@ -1332,16 +1395,16 @@ function renderRecipeView() {
 
   const favs = getFavorites()
   container.innerHTML = recipes.map(([name, recipe]) => {
-    const constiTags = (recipeConsti[name] || []).map(cId => {
+    const constiTags = (recipeConstiIndex[name] || []).map(cId => {
       const c = getConstitutionById(cId)
       return c ? `<span style="background:var(--surface);border:1px solid var(--border);padding:2px 8px;border-radius:10px;font-size:10px;color:var(--text-muted);">${c.emoji} ${c.name}</span>` : ''
     }).join('')
     const isFav = favs.recipes.includes(name)
     return `
-      <div class="recipe-card" style="margin-bottom:10px;cursor:pointer;" onclick="showRecipeDetail('${name}')">
+      <div class="recipe-card" style="margin-bottom:10px;cursor:pointer;" data-recipe="${name}">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div class="recipe-name" style="font-size:15px;">🍲 ${name}</div>
-          <span onclick="event.stopPropagation();toggleRecipeFavorite('${name}')" style="cursor:pointer;font-size:18px;color:${isFav ? 'var(--warm)' : 'var(--text-muted)'};">${isFav ? '★' : '☆'}</span>
+          <span class="recipe-fav-btn" data-recipe="${name}" style="cursor:pointer;font-size:18px;color:${isFav ? 'var(--warm)' : 'var(--text-muted)'};">${isFav ? '★' : '☆'}</span>
         </div>
         <div class="recipe-effect" style="font-size:12px;">${recipe.effect || ''}</div>
         <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;">${constiTags}</div>
@@ -1350,6 +1413,25 @@ function renderRecipeView() {
     `
   }).join('')
 }
+
+// Event delegation for recipe cards
+document.addEventListener('click', function(e) {
+  const favBtn = e.target.closest('.recipe-fav-btn[data-recipe]')
+  if (favBtn) {
+    toggleRecipeFavorite(favBtn.dataset.recipe)
+    return
+  }
+  const closeBtn = e.target.closest('.recipe-close-btn')
+  if (closeBtn) {
+    const overlay = closeBtn.closest('[style*="position:fixed"]')
+    if (overlay) overlay.remove()
+    return
+  }
+  const card = e.target.closest('.recipe-card[data-recipe]')
+  if (card) {
+    showRecipeDetail(card.dataset.recipe)
+  }
+})
 
 function clearBodyData() {
   if (!confirm('确定要清除所有身体数据吗？')) return
@@ -1373,8 +1455,8 @@ function showRecipeDetail(name) {
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div style="font-size:18px;font-weight:700;">🍲 ${name}</div>
         <div style="display:flex;gap:8px;">
-          <span onclick="toggleRecipeFavorite('${name}')" style="cursor:pointer;font-size:22px;color:${isFav ? 'var(--warm)' : 'var(--text-muted)'};">${isFav ? '★' : '☆'}</span>
-          <span onclick="this.closest('[style*=\"position:fixed\"]').remove()" style="cursor:pointer;font-size:22px;color:var(--text-muted);">✕</span>
+          <span class="recipe-fav-btn" data-recipe="${name}" style="cursor:pointer;font-size:22px;color:${isFav ? 'var(--warm)' : 'var(--text-muted)'};">${isFav ? '★' : '☆'}</span>
+          <span class="recipe-close-btn" style="cursor:pointer;font-size:22px;color:var(--text-muted);">✕</span>
         </div>
       </div>
       <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;line-height:1.6;">

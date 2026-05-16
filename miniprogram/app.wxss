@@ -1,0 +1,5 @@
+page {
+  background: #1A221A;
+  height: 100vh;
+  overflow: hidden;
+}

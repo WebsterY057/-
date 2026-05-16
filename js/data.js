@@ -166,164 +166,182 @@ const CONSTITUTIONS = [
 const CONSTITUTION_QUESTIONS = [
   {
     id: 1,
-    text: '您是否经常感到精力充沛，做事有干劲？',
+    text: '您日常的精力状态如何？',
     options: [
-      { text: '是的，精力很好', scores: { pinghe: 2, qixu: -1, yangxu: -1 } },
-      { text: '还可以，偶尔疲倦', scores: { qixu: 1, yangxu: 1 } },
-      { text: '经常感到疲倦乏力', scores: { qixu: 2, yangxu: 1 } }
+      { text: '精力充沛，工作学习效率高', scores: { pinghe: 2, qixu: -1, yangxu: -1 } },
+      { text: '偶尔感觉疲劳，休息后能恢复', scores: { qixu: 1 } },
+      { text: '经常疲倦乏力，稍微活动就累', scores: { qixu: 2, yangxu: 1 } },
+      { text: '严重乏力，什么都不想做，说话都嫌累', scores: { qixu: 3, yangxu: 2, qiyu: 1 } }
     ]
   },
   {
     id: 2,
-    text: '您是否容易感到手脚冰凉，怕冷？',
+    text: '您对冷热的耐受情况如何？',
     options: [
-      { text: '不会，手脚温暖', scores: { pinghe: 1, yangxu: -2 } },
-      { text: '偶尔会冷', scores: { yangxu: 1 } },
-      { text: '经常手脚冰凉，很怕冷', scores: { yangxu: 2, xueyu: 1 } }
+      { text: '手脚温暖，耐寒耐热，感觉正常', scores: { pinghe: 1, yangxu: -1, yinxu: -1 } },
+      { text: '比较怕冷，秋冬手脚冰凉，喜欢暖和的天气', scores: { yangxu: 2, qixu: 1 } },
+      { text: '手脚心发热，怕热喜凉，冬天盖被子也觉得燥热', scores: { yinxu: 2, shire: 1 } },
+      { text: '既怕冷又怕热，换季特别不舒服', scores: { qixu: 1, qiyu: 1 } }
     ]
   },
   {
     id: 3,
-    text: '您是否经常口干舌燥，想喝冷饮？',
+    text: '您的体型和体重变化情况？',
     options: [
-      { text: '不会', scores: { pinghe: 1, yinxu: -1 } },
-      { text: '偶尔口干', scores: { yinxu: 1, shire: 1 } },
-      { text: '经常口干，喜欢喝冷的', scores: { yinxu: 2, shire: 1 } }
+      { text: '体型匀称，体重稳定', scores: { pinghe: 2, tanshi: -1 } },
+      { text: '偏瘦，怎么吃都不胖', scores: { yinxu: 1, qixu: 1 } },
+      { text: '偏胖，腹部松软，容易长胖', scores: { tanshi: 2, qixu: 1 } },
+      { text: '体型不匀称，局部肥胖明显', scores: { tanshi: 2, shire: 1 } }
     ]
   },
   {
     id: 4,
-    text: '您的体型偏胖吗？腹部是否肥满松软？',
+    text: '您的皮肤状态如何？',
     options: [
-      { text: '体型适中或偏瘦', scores: { pinghe: 1, tanshi: -1 } },
-      { text: '有点偏胖', scores: { tanshi: 1 } },
-      { text: '明显肥胖，肚子大', scores: { tanshi: 2 } }
+      { text: '皮肤光滑滋润，颜色正常', scores: { pinghe: 2, yinxu: -1, shire: -1 } },
+      { text: '皮肤偏干，容易脱皮起皱', scores: { yinxu: 2, xueyu: 1 } },
+      { text: '皮肤出油多，容易长痘痘或湿疹', scores: { shire: 2, tanshi: 1 } },
+      { text: '皮肤暗沉，有色斑或瘀斑', scores: { xueyu: 2, qiyu: 1 } }
     ]
   },
   {
     id: 5,
-    text: '您的皮肤是否容易出油，长痤疮？',
+    text: '您的情绪和心理状态？',
     options: [
-      { text: '不会，皮肤正常', scores: { pinghe: 1, shire: -1 } },
-      { text: '偶尔出油', scores: { shire: 1 } },
-      { text: '经常油光满面，长痘痘', scores: { shire: 2, tanshi: 1 } }
+      { text: '情绪稳定，心态平和', scores: { pinghe: 2, qiyu: -2 } },
+      { text: '偶尔心情低落，但能自我调节', scores: { qiyu: 1 } },
+      { text: '经常郁闷焦虑，爱叹气，想法多', scores: { qiyu: 2, xueyu: 1 } },
+      { text: '容易急躁发怒，控制不住脾气', scores: { shire: 2, qiyu: 1 } }
     ]
   },
   {
     id: 6,
-    text: '您是否经常情绪低落，容易多想？',
+    text: '您的消化和排便情况？',
     options: [
-      { text: '心态平和', scores: { pinghe: 1, qiyu: -1 } },
-      { text: '偶尔心情不好', scores: { qiyu: 1 } },
-      { text: '经常郁闷，爱叹气', scores: { qiyu: 2 } }
+      { text: '消化好，大便规律成形', scores: { pinghe: 2, tanshi: -1, qixu: -1 } },
+      { text: '食欲不振，饭后腹胀，大便偏稀', scores: { qixu: 2, tanshi: 1, yangxu: 1 } },
+      { text: '大便黏腻不爽，冲不干净，味重', scores: { shire: 2, tanshi: 2, qixu: 1 } },
+      { text: '大便干结，像羊粪一样一粒一粒', scores: { yinxu: 2, xueyu: 1 } }
     ]
   },
   {
     id: 7,
-    text: '您面色是否偏暗沉，或有色斑、黑眼圈？',
+    text: '您是否容易感冒或生病？病后恢复如何？',
     options: [
-      { text: '面色红润有光泽', scores: { pinghe: 1, xueyu: -1 } },
-      { text: '有些暗沉', scores: { xueyu: 1, qixu: 1 } },
-      { text: '明显晦暗，有色斑', scores: { xueyu: 2 } }
+      { text: '很少生病，一年不超过2次', scores: { pinghe: 2, qixu: -2, tebing: -1 } },
+      { text: '换季时容易感冒，一般一周恢复', scores: { qixu: 1, tebing: 1 } },
+      { text: '经常感冒，恢复慢，容易反复', scores: { qixu: 2, yangxu: 1 } },
+      { text: '容易过敏（打喷嚏、流鼻涕、起疹子），但不是感冒', scores: { tebing: 2, qixu: 1 } }
     ]
   },
   {
     id: 8,
-    text: '您是否有食物或药物过敏史？',
+    text: '您的面色和舌象表现？',
     options: [
-      { text: '没有过敏史', scores: { pinghe: 1, tebing: -2 } },
-      { text: '对少数东西过敏', scores: { tebing: 1 } },
-      { text: '过敏体质，容易过敏', scores: { tebing: 2 } }
+      { text: '面色红润有光泽，舌色淡红', scores: { pinghe: 2, xueyu: -1, qixu: -1 } },
+      { text: '面色苍白或萎黄，容易没有血色', scores: { qixu: 2, xueyu: 1, yangxu: 1 } },
+      { text: '面色晦暗，唇色偏暗或紫，舌下青筋明显', scores: { xueyu: 2, qiyu: 1 } },
+      { text: '面色潮红，两颧发红，像涂了胭脂', scores: { yinxu: 2, shire: 1 } }
     ]
   },
   {
     id: 9,
-    text: '您的肠胃功能如何？大便是否规律？',
+    text: '您是否有过敏史或特殊体质反应？',
     options: [
-      { text: '肠胃好，大便正常', scores: { pinghe: 2, qixu: -1, tanshi: -1 } },
-      { text: '偶尔便溏或便秘', scores: { qixu: 1, tanshi: 1, shire: 1 } },
-      { text: '经常便溏黏腻或便秘', scores: { qixu: 1, tanshi: 2, shire: 1 } }
+      { text: '没有特殊过敏，什么都可以吃', scores: { pinghe: 2, tebing: -2 } },
+      { text: '季节变化时容易打喷嚏、流鼻涕', scores: { tebing: 1, qixu: 1 } },
+      { text: '有明显过敏（药物/食物/花粉），皮肤容易起疹子', scores: { tebing: 2 } },
+      { text: '过敏反应严重（哮喘、喉头水肿等）', scores: { tebing: 3, qixu: 1 } }
     ]
   },
   {
     id: 10,
-    text: '您是否容易感冒或生病？',
+    text: '您是否感觉身体沉重或有痰？',
     options: [
-      { text: '很少生病', scores: { pinghe: 1, qixu: -2 } },
-      { text: '偶尔会感冒', scores: { qixu: 1 } },
-      { text: '经常感冒，恢复慢', scores: { qixu: 2, tebing: 1 } }
+      { text: '没有，身体轻快', scores: { pinghe: 1, tanshi: -1 } },
+      { text: '早晨起来痰多，或喉咙不清爽', scores: { tanshi: 1, shire: 1 } },
+      { text: '头重身困，像裹了湿布，总想睡觉', scores: { tanshi: 2, qixu: 1 } },
+      { text: '胸闷痰多，感觉喘不上气', scores: { tanshi: 2, qiyu: 1, xueyu: 1 } }
     ]
   },
   {
     id: 11,
-    text: '您是否感觉喉咙有异物感，咳不出咽不下？',
+    text: '您的睡眠质量如何？',
     options: [
-      { text: '没有', scores: { pinghe: 1, qiyu: -1 } },
-      { text: '偶尔有', scores: { qiyu: 1, tanshi: 1 } },
-      { text: '经常有，爱清嗓子', scores: { qiyu: 2, tanshi: 1 } }
+      { text: '睡眠好，入睡快，一觉到天亮', scores: { pinghe: 2, yinxu: -1, qiyu: -1 } },
+      { text: '容易醒，夜尿多，睡不够', scores: { yangxu: 2, qixu: 1 } },
+      { text: '入睡困难，翻来覆去睡不着', scores: { qiyu: 2, yinxu: 1, xueyu: 1 } },
+      { text: '多梦，容易惊醒，醒后口干咽燥', scores: { yinxu: 2, shire: 1, qiyu: 1 } }
     ]
   },
   {
     id: 12,
-    text: '您是否容易腰膝酸软？',
+    text: '您的腰膝状态如何？',
     options: [
-      { text: '不会', scores: { pinghe: 1, yangxu: -1, yinxu: -1 } },
-      { text: '偶尔会', scores: { yangxu: 1, yinxu: 1 } },
-      { text: '经常腰膝无力', scores: { yangxu: 2, yinxu: 1 } }
+      { text: '腰膝有力，活动自如', scores: { pinghe: 1, yangxu: -1, yinxu: -1 } },
+      { text: '腰膝酸软，劳累后加重', scores: { yangxu: 1, yinxu: 1 } },
+      { text: '经常腰膝冷痛，像有风吹', scores: { yangxu: 2 } },
+      { text: '腰膝酸软伴有头晕耳鸣', scores: { yinxu: 2, qixu: 1 } }
     ]
   },
   {
     id: 13,
-    text: '您是否感到头重身困，像裹了湿布？',
+    text: '您口渴和喝水的情况？',
     options: [
-      { text: '不会，头脑清爽', scores: { pinghe: 1, tanshi: -1 } },
-      { text: '偶尔昏沉', scores: { tanshi: 1 } },
-      { text: '经常头重脚轻', scores: { tanshi: 2 } }
+      { text: '不渴不喝，口不干', scores: { pinghe: 1, yinxu: -1, shire: -1 } },
+      { text: '口干想喝水，喝温水舒服', scores: { qixu: 1, yinxu: 1 } },
+      { text: '经常口干，想喝冷饮冰水', scores: { yinxu: 2, shire: 1 } },
+      { text: '口渴但不想喝水，或喝不多', scores: { tanshi: 1, qiyu: 1 } }
     ]
   },
   {
     id: 14,
-    text: '您是否手心脚心发热，想摸凉的东西？',
+    text: '您身体是否有固定的疼痛？',
     options: [
-      { text: '不会', scores: { pinghe: 1, yinxu: -1 } },
-      { text: '偶尔发热', scores: { yinxu: 1 } },
-      { text: '经常五心烦热', scores: { yinxu: 2 } }
+      { text: '没有疼痛或不适', scores: { pinghe: 1, xueyu: -1, qiyu: -1 } },
+      { text: '偶尔胀痛，位置不固定，与情绪有关', scores: { qiyu: 1 } },
+      { text: '有固定位置的刺痛，夜间加重', scores: { xueyu: 2, qiyu: 1 } },
+      { text: '关节或肌肉酸痛沉重', scores: { tanshi: 1, xueyu: 1, shire: 1 } }
     ]
   },
   {
     id: 15,
-    text: '您是否夜尿频繁，影响睡眠？',
+    text: '您是否感觉头晕或耳鸣？',
     options: [
-      { text: '不起夜', scores: { pinghe: 1, yangxu: -1 } },
-      { text: '偶尔起夜1次', scores: { yangxu: 1 } },
-      { text: '每晚2次以上', scores: { yangxu: 2, qixu: 1 } }
+      { text: '没有头晕耳鸣', scores: { pinghe: 1, yinxu: -1, qixu: -1 } },
+      { text: '劳累后容易头晕眼花', scores: { qixu: 1, xueyu: 1 } },
+      { text: '经常头晕，头重脚轻', scores: { tanshi: 1, qixu: 1 } },
+      { text: '经常耳鸣，声音细小持续', scores: { yinxu: 2, yangxu: 1 } }
     ]
   },
   {
     id: 16,
-    text: '您是否皮肤容易起风团、红疹或瘙痒？',
+    text: '您的出汗情况如何？',
     options: [
-      { text: '不会', scores: { pinghe: 1, tebing: -1 } },
-      { text: '偶尔会', scores: { tebing: 1, shire: 1 } },
-      { text: '经常过敏发痒', scores: { tebing: 2 } }
+      { text: '出汗正常，运动后适度出汗', scores: { pinghe: 1, qixu: -1, yinxu: -1 } },
+      { text: '白天不动也容易出汗（自汗），怕风', scores: { qixu: 2, yangxu: 1 } },
+      { text: '晚上睡觉出汗（盗汗），醒后汗止', scores: { yinxu: 2, shire: 1 } },
+      { text: '很少出汗，皮肤干燥', scores: { xueyu: 1, yinxu: 1 } }
     ]
   },
   {
     id: 17,
-    text: '您是否常感胸闷、喜欢叹气？',
+    text: '您的季节适应性如何？',
     options: [
-      { text: '没有', scores: { pinghe: 1, qiyu: -1 } },
-      { text: '偶尔胸闷叹气', scores: { qiyu: 1, xueyu: 1 } },
-      { text: '经常胸闷需要深呼吸', scores: { qiyu: 2, xueyu: 1 } }
+      { text: '四季都适应良好', scores: { pinghe: 2 } },
+      { text: '夏季很难受，怕热多汗', scores: { shire: 2, yinxu: 1 } },
+      { text: '冬季很难受，怕冷严重', scores: { yangxu: 2, qixu: 1 } },
+      { text: '换季时容易不舒服（过敏、感冒等）', scores: { tebing: 2, qixu: 1 } }
     ]
   },
   {
     id: 18,
-    text: '您的大便是否黏滞不爽，冲不干净？',
+    text: '您的舌苔情况如何？（请对着镜子观察）',
     options: [
-      { text: '大便成形，不黏', scores: { pinghe: 1, tanshi: -1, shire: -1 } },
-      { text: '偶尔黏腻', scores: { tanshi: 1, shire: 1 } },
-      { text: '经常黏腻臭秽', scores: { shire: 2, tanshi: 1 } }
+      { text: '舌苔薄白，舌体适中', scores: { pinghe: 2 } },
+      { text: '舌苔白腻，舌体胖大有齿痕', scores: { tanshi: 2, qixu: 2 } },
+      { text: '舌苔黄腻，舌质偏红', scores: { shire: 2, yinxu: 1 } },
+      { text: '舌质暗紫，或有瘀点瘀斑', scores: { xueyu: 2, qiyu: 1 } }
     ]
   }
 ]
@@ -1299,14 +1317,29 @@ function calculateResult(scores) {
     .filter(([id]) => id !== 'pinghe')
     .sort((a, b) => b[1] - a[1])
 
-  if (nonPinghe.length > 0 && nonPinghe[0][1] >= 2) {
-    return nonPinghe[0][0]
-  }
+  if (nonPinghe.length > 0) {
+    const topId = nonPinghe[0][0]
+    const topScore = nonPinghe[0][1]
+    const pingheScore = scores.pinghe || 0
 
-  if (scores.pinghe >= 2) return 'pinghe'
+    // 1) Clear winner: top score ≥ 3 AND leads pinghe by ≥ 2
+    if (topScore >= 3 && (topScore - pingheScore) >= 2) {
+      return topId
+    }
 
-  if (nonPinghe.length > 0 && nonPinghe[0][1] > 0) {
-    return nonPinghe[0][0]
+    // 2) Among non-pinghe: top leads second by ≥ 2 and score ≥ 3
+    const secondScore = nonPinghe.length > 1 ? nonPinghe[1][1] : 0
+    if (topScore >= 3 && (topScore - secondScore) >= 2) {
+      return topId
+    }
+
+    // 3) Pinghe is competitive (within 1 of top, score ≥ 3)
+    if (pingheScore >= 3 && pingheScore >= topScore - 1) {
+      return 'pinghe'
+    }
+
+    // 4) Fallback: anything positive
+    if (topScore > 0) return topId
   }
 
   return 'pinghe'
@@ -1601,3 +1634,17 @@ function getCurrentSolarTerm() {
   }
   return SOLAR_TERMS[SOLAR_TERMS.length - 1]
 }
+
+// Symptom keyword → constitution scoring
+// Note: keywords are checked against text with negation awareness:
+// "不易怕冷" will NOT match "怕冷", "不冷" will NOT match "冷"
+const SYMPTOM_KEYWORDS = [
+  { keywords: ['怕冷', '手脚冷', '四肢不温', '畏寒', '怕风', '喜暖'], negations: ['不', '没', '无'], scores: { yangxu: 2, qixu: 1 } },
+  { keywords: ['疲倦', '乏力', '没劲', '气短', '气喘', '懒言', '不想说话', '自汗', '易出汗', '稍微活动就喘'], negations: ['不', '没', '无'], scores: { qixu: 2, yangxu: 1 } },
+  { keywords: ['口干', '咽干', '舌燥', '口渴', '手脚心热', '五心烦热', '盗汗', '睡觉出汗', '潮热', '颧红'], negations: ['不', '没', '无'], scores: { yinxu: 2, shire: 1 } },
+  { keywords: ['出油', '长痘', '痤疮', '粉刺', '口苦', '口臭', '苔黄', '黄痰', '小便黄', '大便黏'], negations: ['不', '没', '无'], scores: { shire: 2, tanshi: 1 } },
+  { keywords: ['痰多', '痰', '胸闷', '腹胀', '肥胖', '肚子大', '大便稀', '大便不成形', '身体沉重'], negations: ['不', '没', '无', '少'], scores: { tanshi: 2, qixu: 1 } },
+  { keywords: ['叹气', '爱叹气', '多愁善感', '情绪低落', '抑郁', '胸胁胀', '肋痛', '喜欢叹气'], negations: ['不', '没', '无'], scores: { qiyu: 2 } },
+  { keywords: ['面色晦暗', '唇暗', '唇紫', '刺痛', '固定痛', '夜间痛', '痛经', '瘀斑', '紫斑'], negations: ['不', '没', '无'], scores: { xueyu: 2, qiyu: 1 } },
+  { keywords: ['过敏', '喷嚏', '鼻塞', '流涕', '鼻痒', '咳嗽', '哮喘', '皮疹', '荨麻疹', '湿疹', '皮肤痒', '风团'], negations: ['不', '没', '无'], scores: { tebing: 2, qixu: 1 } }
+]

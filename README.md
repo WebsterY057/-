@@ -48,10 +48,34 @@ npx serve .
 ├── index.html        # 单页应用入口
 ├── css/style.css     # 亮暗主题样式
 ├── js/
-│   ├── app.js        # 应用逻辑（~1300 行）
+│   ├── app.js        # 应用逻辑（~1400 行）
 │   └── data.js       # 数据（体质、食材、食谱、节气、运动方案）
+├── miniprogram/      # 微信小程序 WebView 壳
+│   ├── project.config.json
+│   ├── app.json / app.js / app.wxss
+│   └── pages/index/  # 单页 WebView 加载 H5
 └── assets/           # 静态资源
 ```
+
+## 微信小程序
+
+项目自带微信小程序壳（`miniprogram/`），使用 WebView 加载 H5 页面。
+
+### 部署步骤
+
+1. 在 [mp.weixin.qq.com](https://mp.weixin.qq.com) 注册小程序（个人号 30 元/年）
+2. 获取 AppID，填入 `miniprogram/project.config.json` 的 `appid` 字段
+3. 在微信公众平台 → 开发 → 开发管理 → 服务器域名中，添加 Netlify 域名到 `request` 和 `webview` 白名单
+4. 修改 `miniprogram/pages/index/index.js` 中的 `H5_URL` 为你的 Netlify 地址
+
+### 预览
+
+用微信开发者工具打开 `miniprogram/` 目录，填入 AppID 即可预览。
+
+### 更新策略
+
+- 数据/功能更新改 H5 即可（`data.js` / `app.js`），push 后 WebView 自动加载最新内容
+- 只有 UI 结构变化时才需要发新版小程序（走微信审核）
 
 ## 许可
 
