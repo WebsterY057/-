@@ -1,0 +1,16 @@
+{
+  "name": "tcm-nutritionist-demo",
+  "version": "1.0.0",
+  "description": "AI中医营养师 · 健身版",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'Static site - no build step required'"
+  },
+  "keywords": ["tcm", "nutrition", "fitness"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@vercel/analytics": "^1.1.1"
+  }
+}
