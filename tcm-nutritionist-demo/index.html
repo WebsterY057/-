@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0A0A0F">
+  <title>AI中医营养师 · 健身版</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container" id="app">
+    <div class="status-bar">
+      <span>9:41</span>
+      <span>📶 🔋 89%</span>
+    </div>
+
+    <div class="app-header" id="appHeader">
+      <h1 id="appTitle">🏋️ 体质营养</h1>
+      <p id="headerSub">AI中医 · 科学健身饮食</p>
+    </div>
+
+    <div class="view-container" id="viewContainer">
+
+      <!-- ========== HOME ========== -->
+      <div class="view active" id="viewHome">
+        <div id="trialBanner"></div>
+        <div class="hero-section">
+          <div class="hero-profile" id="homeAvatar">💪</div>
+          <h2 id="homeGreeting">科学健身，从吃对开始</h2>
+          <p class="hero-sub" id="homeSub">AI体质辨识 + 中医食疗 × 运动营养</p>
+        </div>
+
+        <div class="stats-row" id="homeStats">
+          <div class="stat-item">
+            <div class="stat-num">9</div>
+            <div class="stat-label">中医体质</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">31+</div>
+            <div class="stat-label">食材库</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">3</div>
+            <div class="stat-label">健身场景</div>
+          </div>
+        </div>
+
+        <div class="feature-grid">
+          <div class="feature-item" onclick="startQuiz()">
+            <span class="icon">🧬</span>
+            <span class="label">体质测试</span>
+            <span class="sublabel">AI精准辨识</span>
+          </div>
+          <div class="feature-item" onclick="switchTab('viewFoodSearch', document.querySelector('.tab-item[data-view=\"viewFoodSearch\"]'))">
+            <span class="icon">🥦</span>
+            <span class="label">食材查询</span>
+            <span class="sublabel">性味归经</span>
+          </div>
+          <div class="feature-item" onclick="showWorkoutNutrition()">
+            <span class="icon">💪</span>
+            <span class="label">健身饮食</span>
+            <span class="sublabel">增肌减脂</span>
+          </div>
+          <div class="feature-item" onclick="switchTab('viewSeason', document.querySelector('.tab-item[data-view=\"viewSeason\"]'))">
+            <span class="icon">📅</span>
+            <span class="label">时令养生</span>
+            <span class="sublabel">应季食疗</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📖 九种体质速览</div>
+          <div id="constiList"></div>
+        </div>
+      </div>
+
+      <!-- ========== QUIZ ========== -->
+      <div class="view" id="viewQuiz">
+        <div class="card">
+          <div class="quiz-progress-text" id="quizProgress">第 1 / 9 题</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="quizProgressFill" style="width: 11%"></div>
+          </div>
+          <div class="quiz-question" id="quizQuestion"></div>
+          <div id="quizOptions"></div>
+          <div class="quiz-nav">
+            <button class="btn btn-secondary btn-sm" id="quizPrevBtn" onclick="prevQuestion()">← 上一题</button>
+            <button class="btn btn-primary btn-sm" id="quizNextBtn" onclick="nextQuestion()">下一题 →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== RESULT ========== -->
+      <div class="view" id="viewResult">
+        <div class="result-badge">
+          <span class="result-emoji" id="resultEmoji"></span>
+          <div class="result-name" id="resultName"></div>
+          <div class="result-desc" id="resultDesc"></div>
+        </div>
+
+        <div class="result-tabs" id="resultTabs">
+          <div class="result-tab active" data-tab="suitable" onclick="switchResultTab('suitable')">✅ 宜食</div>
+          <div class="result-tab" data-tab="avoid" onclick="switchResultTab('avoid')">❌ 忌食</div>
+          <div class="result-tab" data-tab="recipe" onclick="switchResultTab('recipe')">🍳 食疗方</div>
+          <div class="result-tab" data-tab="info" onclick="switchResultTab('info')">📖 调养</div>
+          <div class="result-tab" data-tab="fitness" onclick="switchResultTab('fitness')">💪 健身</div>
+        </div>
+
+        <div id="resultContent"></div>
+
+        <div class="bottom-action">
+          <button class="btn btn-primary" onclick="goToFoodSearch()">🔍 查询食材属性</button>
+        </div>
+      </div>
+
+      <!-- ========== FOOD SEARCH ========== -->
+      <div class="view" id="viewFoodSearch">
+        <div class="card">
+          <div class="card-title">🥦 药食同源查询</div>
+          <div class="search-box">
+            <input type="text" id="foodSearchInput" placeholder="搜索食材（如：牛肉、山药）" onkeydown="if(event.key==='Enter') searchFood()">
+            <button class="search-btn" onclick="searchFood()">搜索</button>
+          </div>
+          <div class="filter-chips" id="foodFilterChips">
+            <div class="chip active" data-filter="all" onclick="filterFoods('all')">全部</div>
+            <div class="chip" data-filter="suitable" onclick="filterFoods('suitable')">✅ 宜食</div>
+            <div class="chip" data-filter="avoid" onclick="filterFoods('avoid')">❌ 忌食</div>
+          </div>
+        </div>
+        <div id="foodResults">
+          <div class="empty-state">
+            <span class="empty-icon">🔍</span>
+            <p>搜索食材，查看中医属性<br>与体质的宜忌关系</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== SEASON ========== -->
+      <div class="view" id="viewSeason">
+        <div class="season-banner" id="seasonBanner"></div>
+        <div id="seasonContent"></div>
+      </div>
+
+      <!-- ========== LOGIN ========== -->
+      <div class="view" id="viewLogin">
+        <div class="login-container">
+          <div class="login-logo">🌿</div>
+          <div class="login-title">欢迎来到体质营养</div>
+          <div class="login-sub">AI中医 × 健身饮食，开启你的科学饮食之旅</div>
+          <input class="login-input" id="loginPhone" type="tel" placeholder="输入手机号" maxlength="11">
+          <button class="btn btn-primary" onclick="sendCode()" id="sendCodeBtn">获取验证码</button>
+          <div class="login-divider">或</div>
+          <div class="social-login">
+            <div class="social-btn" onclick="mockLogin()">🟢</div>
+            <div class="social-btn" onclick="mockLogin()">💬</div>
+            <div class="social-btn" onclick="mockLogin()">🍎</div>
+          </div>
+          <div class="login-agreement">
+            登录即表示同意 <a href="#">用户协议</a> 和 <a href="#">隐私政策</a><br>
+            新用户自动获得 <strong id="trialDaysText">7 天</strong> 免费体验
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== PROFILE ========== -->
+      <div class="view" id="viewProfile">
+        <div class="profile-header">
+          <div class="profile-avatar" id="profileAvatar">💪</div>
+          <div class="profile-name" id="profileName">健身用户</div>
+          <div class="profile-phone" id="profilePhone">138****8888</div>
+        </div>
+
+        <div class="membership-card" id="membershipCard">
+          <div class="mb-title">会员状态</div>
+          <div class="mb-status" id="mbStatus">免费体验中</div>
+          <div class="mb-expire" id="mbExpire">试用期剩余 7 天</div>
+          <div class="mb-progress">
+            <div class="mb-progress-fill" id="mbProgress" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="menu-item" onclick="showSubscription()">
+            <span class="mi-icon">⭐</span>
+            <span class="mi-text">升级Pro会员</span>
+            <span class="mi-badge" id="menuProBadge">限时优惠</span>
+            <span class="mi-arrow">›</span>
+          </div>
+          <div class="menu-item" onclick="startQuiz()">
+            <span class="mi-icon">🧬</span>
+            <span class="mi-text">体质测试</span>
+            <span class="mi-arrow">›</span>
+          </div>
+          <div class="menu-item">
+            <span class="mi-icon">📊</span>
+            <span class="mi-text">测试记录</span>
+            <span class="mi-arrow">›</span>
+          </div>
+          <div class="menu-item">
+            <span class="mi-icon">❓</span>
+            <span class="mi-text">帮助与反馈</span>
+            <span class="mi-arrow">›</span>
+          </div>
+          <div class="menu-item" onclick="logout()">
+            <span class="mi-icon">🚪</span>
+            <span class="mi-text" style="color:#FF453A;">退出登录</span>
+            <span class="mi-arrow">›</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== SUBSCRIPTION ========== -->
+      <div class="view" id="viewSubscription">
+        <div class="card" style="text-align:center;padding:24px;">
+          <div style="font-size:15px;font-weight:600;color:var(--gold);margin-bottom:4px;">🚀 升级Pro</div>
+          <div style="font-size:13px;color:var(--text-secondary);">解锁全部中医营养 & 健身饮食功能</div>
+        </div>
+        <div id="subscriptionPlans"></div>
+        <div style="padding:8px 0 16px;text-align:center;">
+          <span style="font-size:12px;color:var(--text-muted);">自动续费，可随时取消</span>
+        </div>
+      </div>
+
+      <!-- ========== WORKOUT NUTRITION ========== -->
+      <div class="view" id="viewWorkout">
+        <div class="card">
+          <div class="card-title">💪 健身场景饮食</div>
+          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;">根据你的训练目标，推荐最合适的食材搭配</p>
+          <div id="workoutList"></div>
+        </div>
+        <div id="workoutExtra"></div>
+      </div>
+
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <button class="tab-item active" data-view="viewHome" onclick="switchTab('viewHome', this)">
+        <span class="tab-icon">🏠</span>
+        <span class="tab-label">首页</span>
+      </button>
+      <button class="tab-item" data-view="viewQuiz" onclick="switchTab('viewQuiz', this)">
+        <span class="tab-icon">🧬</span>
+        <span class="tab-label">测试</span>
+      </button>
+      <button class="tab-item" data-view="viewFoodSearch" onclick="switchTab('viewFoodSearch', this)">
+        <span class="tab-icon">🔍</span>
+        <span class="tab-label">查询</span>
+      </button>
+      <button class="tab-item" data-view="viewProfile" onclick="switchTab('viewProfile', this)">
+        <span class="tab-icon">👤</span>
+        <span class="tab-label">我的</span>
+      </button>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
