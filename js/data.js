@@ -265,62 +265,6 @@ function calculateResult(scores) {
   return topTypes[0] || 'pinghe'
 }
 
-const SUBSCRIPTION_PLANS = [
-  {
-    id: 'free',
-    name: '免费体验',
-    price: 0,
-    period: '永久',
-    badge: '当前',
-    features: [
-      '1次体质测试（基础版）',
-      '5次食材查询/月',
-      '基础饮食建议',
-      '查看时令推荐'
-    ],
-    locked: ['详细体质分析报告', '无限食材查询', '个性化食疗方案', '健身专属食谱', '高级数据分析'],
-    popular: false
-  },
-  {
-    id: 'pro',
-    name: 'Pro 月卡',
-    price: 29.9,
-    period: '月',
-    originalPrice: 49.9,
-    badge: '最受欢迎',
-    features: [
-      '无限次体质测试（高级版）',
-      '无限食材查询',
-      '详细体质分析报告',
-      '个性化食疗方案',
-      '健身专属食谱推荐',
-      '运动营养搭配建议'
-    ],
-    locked: [],
-    popular: true
-  },
-  {
-    id: 'yearly',
-    name: 'Pro 年卡',
-    price: 199,
-    period: '年',
-    originalPrice: 359,
-    badge: '最超值',
-    features: [
-      '全部Pro月卡权益',
-      '专属营养师咨询（每月4次）',
-      '定制健身饮食计划',
-      '优先新功能体验',
-      '体质变化追踪对比',
-      '家庭账号共享（最多3人）'
-    ],
-    locked: [],
-    popular: false
-  }
-]
-
-const TRIAL_DAYS = 7
-
 const FITNESS_WORKOUTS = [
   { type: '增肌', foods: ['牛肉', '鸡肉', '鸡蛋', '牛奶', '燕麦', '糙米', '西兰花', '香蕉'], tip: '练后30分钟内补充蛋白质和快碳，促进肌肉修复' },
   { type: '减脂', foods: ['鸡胸肉', '鱼虾', '藜麦', '绿叶蔬菜', '蛋白粉', '牛油果', '浆果'], tip: '控制碳水摄入，晚餐尽量在19:00前完成' },

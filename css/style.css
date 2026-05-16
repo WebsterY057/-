@@ -227,36 +227,6 @@ body {
 .feature-item .label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
 .feature-item .sublabel { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-/* Trial Banner */
-.trial-banner {
-  background: linear-gradient(135deg, rgba(212,165,116,0.15), rgba(212,165,116,0.05));
-  border: 1px solid rgba(212,165,116,0.25);
-  border-radius: var(--radius-sm);
-  padding: 14px 16px;
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.trial-banner .trial-info { flex: 1; }
-.trial-banner .trial-days {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--gold);
-}
-.trial-banner .trial-text { font-size: 13px; color: var(--text-secondary); }
-.trial-banner .trial-btn {
-  padding: 8px 16px;
-  background: var(--gold);
-  color: #0A0A0F;
-  border: none;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
 /* Quiz */
 .progress-bar {
   background: rgba(255,255,255,0.06);
@@ -616,88 +586,6 @@ body {
 /* Scrollbar */
 ::-webkit-scrollbar { width: 0; }
 
-/* Login View */
-.login-container {
-  padding: 40px 16px;
-  text-align: center;
-}
-.login-logo {
-  width: 80px;
-  height: 80px;
-  border-radius: 24px;
-  background: linear-gradient(135deg, var(--gold), var(--primary-dark));
-  margin: 0 auto 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 36px;
-  box-shadow: 0 0 40px var(--gold-glow);
-}
-.login-title {
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-.login-sub {
-  color: var(--text-secondary);
-  font-size: 14px;
-  margin-bottom: 32px;
-}
-.login-input {
-  width: 100%;
-  padding: 16px;
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-size: 16px;
-  color: var(--text);
-  outline: none;
-  margin-bottom: 12px;
-  text-align: center;
-}
-.login-input:focus { border-color: var(--gold); }
-.login-input::placeholder { color: var(--text-muted); }
-.login-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 24px 0;
-  color: var(--text-muted);
-  font-size: 12px;
-}
-.login-divider::before, .login-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-.social-login {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-}
-.social-btn {
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.social-btn:hover { border-color: var(--gold); background: var(--bg-card-hover); }
-.login-agreement {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 20px;
-  line-height: 1.6;
-}
-.login-agreement a { color: var(--gold); text-decoration: none; }
-
 /* Profile View */
 .profile-header {
   text-align: center;
@@ -716,34 +604,6 @@ body {
 }
 .profile-name { font-size: 20px; font-weight: 700; }
 .profile-phone { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
-
-.membership-card {
-  background: linear-gradient(135deg, rgba(212,165,116,0.12), rgba(52,199,89,0.08));
-  border: 1px solid rgba(212,165,116,0.2);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 14px;
-}
-.membership-card .mb-title { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
-.membership-card .mb-status {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--gold);
-}
-.membership-card .mb-expire { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
-.membership-card .mb-progress {
-  margin-top: 12px;
-  height: 4px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 4px;
-  overflow: hidden;
-}
-.membership-card .mb-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--gold), var(--accent));
-  border-radius: 4px;
-  transition: width 0.5s ease;
-}
 
 .menu-item {
   display: flex;
@@ -766,82 +626,6 @@ body {
   font-weight: 600;
   background: var(--gold);
   color: #0A0A0F;
-}
-
-/* Subscription */
-.sub-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 12px;
-  position: relative;
-  cursor: pointer;
-  transition: all 0.25s;
-}
-.sub-card:hover { border-color: var(--gold); }
-.sub-card.popular {
-  border-color: var(--gold);
-  background: linear-gradient(135deg, var(--bg-card), rgba(212,165,116,0.06));
-  box-shadow: 0 0 30px var(--gold-glow);
-}
-.sub-card .sub-badge {
-  position: absolute;
-  top: -1px;
-  right: 20px;
-  padding: 4px 12px;
-  border-radius: 0 0 10px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--gold);
-  color: #0A0A0F;
-}
-.sub-card .sub-name { font-size: 16px; font-weight: 700; color: var(--text); }
-.sub-card .sub-price {
-  margin: 8px 0;
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-}
-.sub-card .sub-price .price-num { font-size: 32px; font-weight: 800; color: var(--gold); }
-.sub-card .sub-price .price-period { font-size: 14px; color: var(--text-secondary); }
-.sub-card .sub-price .price-original {
-  font-size: 14px;
-  color: var(--text-muted);
-  text-decoration: line-through;
-}
-.sub-card .sub-features { margin-top: 14px; }
-.sub-card .sub-features .sf-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--text-secondary);
-  padding: 5px 0;
-}
-.sub-card .sub-features .sf-item .sf-icon { color: var(--accent); font-size: 14px; }
-.sub-card .sub-features .sf-item.locked { color: var(--text-muted); }
-.sub-card .sub-features .sf-item.locked .sf-icon { color: var(--text-muted); }
-.sub-card .sub-locked { color: var(--text-muted); }
-
-/* Lock overlay */
-.lock-overlay {
-  position: relative;
-}
-.lock-overlay::after {
-  content: '🔒 升级Pro解锁';
-  position: absolute;
-  inset: 0;
-  background: rgba(10,10,15,0.7);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--gold);
-  border-radius: var(--radius);
-  cursor: pointer;
 }
 
 /* Fitness Workout Cards */

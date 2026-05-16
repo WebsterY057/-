@@ -23,11 +23,10 @@
 
       <!-- ========== HOME ========== -->
       <div class="view active" id="viewHome">
-        <div id="trialBanner"></div>
         <div class="hero-section">
           <div class="hero-profile" id="homeAvatar">💪</div>
           <h2 id="homeGreeting">科学健身，从吃对开始</h2>
-          <p class="hero-sub" id="homeSub">AI体质辨识 + 中医食疗 × 运动营养</p>
+          <p class="hero-sub" id="homeSub">AI体质辨识 + 中医食疗 × 运动营养，全部功能免费使用</p>
         </div>
 
         <div class="stats-row" id="homeStats">
@@ -141,51 +140,15 @@
         <div id="seasonContent"></div>
       </div>
 
-      <!-- ========== LOGIN ========== -->
-      <div class="view" id="viewLogin">
-        <div class="login-container">
-          <div class="login-logo">🌿</div>
-          <div class="login-title">欢迎来到体质营养</div>
-          <div class="login-sub">AI中医 × 健身饮食，开启你的科学饮食之旅</div>
-          <input class="login-input" id="loginPhone" type="tel" placeholder="输入手机号" maxlength="11">
-          <button class="btn btn-primary" onclick="sendCode()" id="sendCodeBtn">获取验证码</button>
-          <div class="login-divider">或</div>
-          <div class="social-login">
-            <div class="social-btn" onclick="mockLogin()">🟢</div>
-            <div class="social-btn" onclick="mockLogin()">💬</div>
-            <div class="social-btn" onclick="mockLogin()">🍎</div>
-          </div>
-          <div class="login-agreement">
-            登录即表示同意 <a href="#">用户协议</a> 和 <a href="#">隐私政策</a><br>
-            新用户自动获得 <strong id="trialDaysText">7 天</strong> 免费体验
-          </div>
-        </div>
-      </div>
-
       <!-- ========== PROFILE ========== -->
       <div class="view" id="viewProfile">
         <div class="profile-header">
           <div class="profile-avatar" id="profileAvatar">💪</div>
           <div class="profile-name" id="profileName">健身用户</div>
-          <div class="profile-phone" id="profilePhone">138****8888</div>
-        </div>
-
-        <div class="membership-card" id="membershipCard">
-          <div class="mb-title">会员状态</div>
-          <div class="mb-status" id="mbStatus">免费体验中</div>
-          <div class="mb-expire" id="mbExpire">试用期剩余 7 天</div>
-          <div class="mb-progress">
-            <div class="mb-progress-fill" id="mbProgress" style="width: 0%"></div>
-          </div>
+          <div class="profile-phone" id="profilePhone">AI中医营养师</div>
         </div>
 
         <div class="card">
-          <div class="menu-item" onclick="showSubscription()">
-            <span class="mi-icon">⭐</span>
-            <span class="mi-text">升级Pro会员</span>
-            <span class="mi-badge" id="menuProBadge">限时优惠</span>
-            <span class="mi-arrow">›</span>
-          </div>
           <div class="menu-item" onclick="startQuiz()">
             <span class="mi-icon">🧬</span>
             <span class="mi-text">体质测试</span>
@@ -201,23 +164,6 @@
             <span class="mi-text">帮助与反馈</span>
             <span class="mi-arrow">›</span>
           </div>
-          <div class="menu-item" onclick="logout()">
-            <span class="mi-icon">🚪</span>
-            <span class="mi-text" style="color:#FF453A;">退出登录</span>
-            <span class="mi-arrow">›</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========== SUBSCRIPTION ========== -->
-      <div class="view" id="viewSubscription">
-        <div class="card" style="text-align:center;padding:24px;">
-          <div style="font-size:15px;font-weight:600;color:var(--gold);margin-bottom:4px;">🚀 升级Pro</div>
-          <div style="font-size:13px;color:var(--text-secondary);">解锁全部中医营养 & 健身饮食功能</div>
-        </div>
-        <div id="subscriptionPlans"></div>
-        <div style="padding:8px 0 16px;text-align:center;">
-          <span style="font-size:12px;color:var(--text-muted);">自动续费，可随时取消</span>
         </div>
       </div>
 
