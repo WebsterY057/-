@@ -21,6 +21,12 @@
     </div>
 
     <div class="view-container" id="viewContainer">
+    <div id="loadingOverlay" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(var(--bg),0.8);z-index:50;align-items:center;justify-content:center;">
+      <div style="text-align:center;">
+        <div style="font-size:24px;animation:spin 1s linear infinite;">🌿</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:8px;">加载中...</div>
+      </div>
+    </div>
 
       <!-- ========== HOME ========== -->
       <div class="view active" id="viewHome">
@@ -67,12 +73,12 @@
             <span class="label">分析报告</span>
             <span class="sublabel">体质详情</span>
           </div>
-          <div class="feature-item" onclick="switchTab('viewFoodSearch', document.querySelector('.tab-item[data-view=\"viewFoodSearch\"]'))">
+          <div class="feature-item" onclick="switchTab('viewFoodSearch', document.querySelector(&quot;.tab-item[data-view='viewFoodSearch']&quot;))">
             <span class="icon">🥦</span>
             <span class="label">食材查询</span>
             <span class="sublabel">性味归经</span>
           </div>
-          <div class="feature-item" onclick="switchTab('viewSeason', document.querySelector('.tab-item[data-view=\"viewSeason\"]'))">
+          <div class="feature-item" onclick="switchTab('viewSeason', document.querySelector(&quot;.tab-item[data-view='viewSeason']&quot;))">
             <span class="icon">📅</span>
             <span class="label">时令养生</span>
             <span class="sublabel">应季食疗</span>
@@ -81,6 +87,20 @@
             <span class="icon">🏃</span>
             <span class="label">运动营养</span>
             <span class="sublabel">饮食方案</span>
+          </div>
+          <div class="feature-item" onclick="switchTab('viewStories', document.querySelector(&quot;.tab-item[data-view='viewProfile']&quot;))">
+            <span class="icon">📜</span>
+            <span class="label">中药故事</span>
+            <span class="sublabel">典故传说</span>
+          </div>
+        </div>
+
+        <div class="card" id="mealLogCard">
+          <div class="card-title">🍽️ 今日饮食记录</div>
+          <div id="mealLogList" style="margin-bottom:10px;"></div>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="mealInput" placeholder="记录吃了什么..." style="flex:1;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--text);outline:none;" onkeydown="if(event.key==='Enter')addMealLog()">
+            <button onclick="addMealLog()" style="padding:10px 16px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;">添加</button>
           </div>
         </div>
 
@@ -182,8 +202,9 @@
         <div class="bottom-action">
           <button class="btn btn-outline" onclick="shareConstitution()">📤 分享我的体质报告</button>
         </div>
-        <div class="bottom-action">
-          <button class="btn btn-secondary" onclick="startQuiz()">🔄 重新测试</button>
+        <div class="bottom-action" style="display:flex;gap:10px;">
+          <button class="btn btn-secondary" style="flex:1;" onclick="switchTab('viewHome', document.querySelector('.tab-item[data-view=&quot;viewHome&quot;]'))">🏠 返回首页</button>
+          <button class="btn btn-secondary" style="flex:1;" onclick="startQuiz()">🔄 重新测试</button>
         </div>
       </div>
 
@@ -196,6 +217,7 @@
             <input type="text" id="foodSearchInput" placeholder="搜索食材（如：山药、牛肉）" onkeydown="if(event.key==='Enter') searchFood()">
             <button class="search-btn" onclick="searchFood()">搜索</button>
           </div>
+          <div id="searchHistory" style="display:none;margin-top:8px;"></div>
           <div class="filter-chips" id="foodFilterChips">
             <div class="chip active" data-filter="all" onclick="filterFoods('all')">全部</div>
             <div class="chip" data-filter="suitable" onclick="filterFoods('suitable')">✅ 宜食</div>
@@ -256,7 +278,7 @@
             <span class="mi-text">体质测试</span>
             <span class="mi-arrow">›</span>
           </div>
-          <div class="menu-item" onclick="switchTab('viewSeason', document.querySelector('.tab-item[data-view=\"viewSeason\"]'))">
+          <div class="menu-item" onclick="switchTab('viewSeason', document.querySelector(&quot;.tab-item[data-view='viewSeason']&quot;))">
             <span class="mi-icon">📅</span>
             <span class="mi-text">时令养生</span>
             <span class="mi-arrow">›</span>
@@ -266,7 +288,7 @@
             <span class="mi-text">运动营养</span>
             <span class="mi-arrow">›</span>
           </div>
-          <div class="menu-item" onclick="switchTab('viewStories', document.querySelector('.tab-item[data-view=\"viewProfile\"]'))">
+          <div class="menu-item" onclick="switchTab('viewStories', document.querySelector(&quot;.tab-item[data-view='viewProfile']&quot;))">
             <span class="mi-icon">📜</span>
             <span class="mi-text">中药故事</span>
             <span class="mi-arrow">›</span>
@@ -274,6 +296,11 @@
           <div class="menu-item" onclick="showFavoritesView()">
             <span class="mi-icon">⭐</span>
             <span class="mi-text">我的收藏</span>
+            <span class="mi-arrow">›</span>
+          </div>
+          <div class="menu-item" onclick="showUserStats()">
+            <span class="mi-icon">🏆</span>
+            <span class="mi-text">我的成就</span>
             <span class="mi-arrow">›</span>
           </div>
           <div class="menu-item" onclick="toggleTheme()">
@@ -325,9 +352,9 @@
         <span class="tab-icon">🏠</span>
         <span class="tab-label">首页</span>
       </button>
-      <button class="tab-item" data-view="viewQuiz" onclick="switchTab('viewQuiz', this)">
-        <span class="tab-icon">🧬</span>
-        <span class="tab-label">测试</span>
+      <button class="tab-item" data-view="viewSeason" onclick="switchTab('viewSeason', this)">
+        <span class="tab-icon">📅</span>
+        <span class="tab-label">时令</span>
       </button>
       <button class="tab-item" data-view="viewFoodSearch" onclick="switchTab('viewFoodSearch', this)">
         <span class="tab-icon">🔍</span>
@@ -354,6 +381,15 @@
       wx.ready(function() {
         wx.miniProgram.postMessage({ data: { type: 'ready' } })
       })
+    }
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').then(reg => {
+        console.log('Service Worker registered');
+      }).catch(err => {
+        console.log('Service Worker registration failed:', err);
+      });
     }
   </script>
 </body>

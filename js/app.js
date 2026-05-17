@@ -8,6 +8,15 @@ let userBodyInfo = null
 let quizScores = null
 let quizSymptomScores = null
 let selectedMonth = null
+
+function showLoading() {
+  const overlay = document.getElementById('loadingOverlay')
+  if (overlay) overlay.classList.add('show')
+}
+function hideLoading() {
+  const overlay = document.getElementById('loadingOverlay')
+  if (overlay) overlay.classList.remove('show')
+}
 let propertyFilter = 'all'
 let meridianFilter = 'all'
 let recipeFilter = 'all'
@@ -153,7 +162,7 @@ function updateTabBar() {
 
 function switchTab(viewId, btn) {
   document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'))
-  btn.classList.add('active')
+  if (btn) btn.classList.add('active')
   showView(viewId)
   if (viewId === 'viewSeason') renderSeasonView(selectedMonth || undefined)
   if (viewId === 'viewFoodSearch') {
@@ -183,6 +192,7 @@ function switchTab(viewId, btn) {
   if (viewId === 'viewProfile') renderProfileView()
   if (viewId === 'viewRecipes') renderRecipeView()
   if (viewId === 'viewStories') renderStoriesView()
+  if (viewId === 'viewFoodSearch') renderSearchHistory()
 }
 
 // ============ HOME ============
@@ -249,7 +259,7 @@ function renderDailyFood() {
     <div class="daily-food-card">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <span class="daily-food-label">${label}</span>
-        <span onclick="toggleFoodFavorite('${food.name}')" style="cursor:pointer;font-size:18px;color:${isFav ? 'var(--warm)' : 'var(--text-muted)'};">${isFav ? '★' : '☆'}</span>
+        <span class="food-star" data-name="${food.name}" style="cursor:pointer;font-size:18px;color:${isFav ? 'var(--warm)' : 'var(--text-muted)'};">${isFav ? '★' : '☆'}</span>
       </div>
       <div class="daily-food-header">
         <span class="daily-food-name">${food.name}</span>
@@ -264,6 +274,44 @@ function renderDailyFood() {
       <div class="daily-food-suggestion">💡 ${food.suggestion}</div>
     </div>
   `
+}
+
+function getMealLog() {
+  const today = new Date().toDateString()
+  try {
+    const logs = JSON.parse(localStorage.getItem('mealLog')) || {}
+    return logs[today] || []
+  } catch (e) { return [] }
+}
+
+function addMealLog() {
+  const input = document.getElementById('mealInput')
+  const food = input.value.trim()
+  if (!food) return
+  const today = new Date().toDateString()
+  const logs = JSON.parse(localStorage.getItem('mealLog') || '{}')
+  if (!logs[today]) logs[today] = []
+  logs[today].push({ food, time: new Date().toLocaleTimeString() })
+  logs[today] = logs[today].slice(-10)
+  localStorage.setItem('mealLog', JSON.stringify(logs))
+  input.value = ''
+  renderMealLog()
+  addPoints(1, '记录饮食')
+}
+
+function renderMealLog() {
+  const container = document.getElementById('mealLogList')
+  const logs = getMealLog()
+  if (logs.length === 0) {
+    container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:10px;">暂无记录，点击添加今日饮食</p>'
+    return
+  }
+  container.innerHTML = logs.map(log => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+      <span style="font-size:13px;">${log.food}</span>
+      <span style="font-size:11px;color:var(--text-muted);">${log.time}</span>
+    </div>
+  `).join('')
 }
 
 function renderCheckIn() {
@@ -322,6 +370,43 @@ function hashString(s) {
   return hash
 }
 
+function getUserPoints() {
+  try { return JSON.parse(localStorage.getItem('userPoints')) || { points: 0, badges: [], history: [] } }
+  catch (e) { return { points: 0, badges: [], history: [] } }
+}
+
+function addPoints(amount, reason) {
+  const data = getUserPoints()
+  data.points += amount
+  data.history.unshift({ amount, reason, date: new Date().toISOString() })
+  data.history = data.history.slice(0, 50)
+  localStorage.setItem('userPoints', JSON.stringify(data))
+  checkBadges()
+  return data.points
+}
+
+function checkBadges() {
+  const data = getUserPoints()
+  const checkinData = JSON.parse(localStorage.getItem('checkinData') || '{"streak":0}')
+  const badges = [
+    { id: 'first_checkin', name: '初次打卡', icon: '🌱', condition: () => data.history.some(h => h.reason === '打卡') },
+    { id: 'streak_7', name: '连续7天', icon: '🔥', condition: () => checkinData.streak >= 7 },
+    { id: 'streak_30', name: '坚持一月', icon: '💎', condition: () => checkinData.streak >= 30 },
+    { id: 'foodie_10', name: '食材达人', icon: '🥗', condition: () => data.history.filter(h => h.reason === '收藏食材').length >= 10 },
+    { id: 'chef_5', name: '食谱达人', icon: '🍳', condition: () => data.history.filter(h => h.reason === '收藏食谱').length >= 5 },
+    { id: 'explorer', name: '探索者', icon: '🔍', condition: () => data.history.filter(h => h.reason === '搜索食材').length >= 20 },
+    { id: 'constitution_master', name: '体质大师', icon: '🧬', condition: () => data.history.some(h => h.reason === '完成测试') }
+  ]
+  const newBadges = badges.filter(b => !data.badges.includes(b.id) && b.condition()).map(b => b.id)
+  data.badges.push(...newBadges)
+  localStorage.setItem('userPoints', JSON.stringify(data))
+  if (newBadges.length > 0) {
+    const badgeNames = newBadges.map(id => badges.find(b => b.id === id).icon + badges.find(b => b.id === id).name).join(' ')
+    return `🏆 解锁新徽章：${badgeNames}`
+  }
+  return null
+}
+
 function doCheckIn() {
   const today = new Date().toDateString()
   let checkinData = { days: [], streak: 0 }
@@ -334,7 +419,12 @@ function doCheckIn() {
   const yesterday = new Date(Date.now() - 86400000).toDateString()
   checkinData.streak = checkinData.days.includes(yesterday) ? checkinData.streak + 1 : 1
   localStorage.setItem('checkinData', JSON.stringify(checkinData))
+  addPoints(5, '打卡')
+  const badgeMsg = checkBadges()
   renderCheckIn()
+  if (badgeMsg) {
+    setTimeout(() => alert(badgeMsg), 500)
+  }
 }
 
 function renderSolarTerm() {
@@ -361,10 +451,24 @@ function saveFavorites(favs) {
   localStorage.setItem('favorites', JSON.stringify(favs))
 }
 
+function getSearchHistory() {
+  try { return JSON.parse(localStorage.getItem('searchHistory')) || [] }
+  catch (e) { return [] }
+}
+
+function saveSearchHistory(query) {
+  if (!query) return
+  let history = getSearchHistory()
+  history = history.filter(h => h !== query)
+  history.unshift(query)
+  history = history.slice(0, 5)
+  localStorage.setItem('searchHistory', JSON.stringify(history))
+}
+
 function toggleFoodFavorite(name) {
   const favs = getFavorites()
   const idx = favs.foods.indexOf(name)
-  if (idx >= 0) { favs.foods.splice(idx, 1) } else { favs.foods.push(name) }
+  if (idx >= 0) { favs.foods.splice(idx, 1) } else { favs.foods.push(name); addPoints(2, '收藏食材') }
   saveFavorites(favs)
   const container = document.getElementById('foodResults')
   if (container && container.querySelector('.food-result-card')) {
@@ -376,7 +480,7 @@ function toggleFoodFavorite(name) {
 function toggleRecipeFavorite(name) {
   const favs = getFavorites()
   const idx = favs.recipes.indexOf(name)
-  if (idx >= 0) { favs.recipes.splice(idx, 1) } else { favs.recipes.push(name) }
+  if (idx >= 0) { favs.recipes.splice(idx, 1) } else { favs.recipes.push(name); addPoints(2, '收藏食谱') }
   saveFavorites(favs)
   const viewResult = document.getElementById('viewResult')
   if (viewResult && viewResult.classList.contains('active')) {
@@ -414,7 +518,7 @@ function showFavoritesView() {
       if (!recipe) return ''
       return `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;display:flex;justify-content:space-between;align-items:center;">
         <span>${name}</span>
-        <span onclick="toggleRecipeFavorite('${name}')" style="cursor:pointer;color:var(--warm);font-size:16px;">★</span>
+        <span class="recipe-star" data-name="${name}" style="cursor:pointer;color:var(--warm);font-size:16px;">★</span>
       </div>`
     }).join('')
   }
@@ -430,6 +534,65 @@ function showFavoritesView() {
   document.getElementById('profileAvatar').textContent = '⭐'
   document.getElementById('profileName').textContent = '我的收藏'
   document.getElementById('profilePhone').textContent = `${foodFavs.length}个食材 · ${recipeFavs.length}个食谱`
+  document.getElementById('currentConstiBadge').innerHTML = ''
+  const menuCard = document.querySelector('#viewProfile .card')
+  if (menuCard) menuCard.style.display = 'none'
+  const existing = document.getElementById('favoritesDetail')
+  if (existing) existing.remove()
+  const div = document.createElement('div')
+  div.id = 'favoritesDetail'
+  div.innerHTML = html
+  document.querySelector('#viewProfile .profile-header').after(div)
+}
+
+function showUserStats() {
+  const pointsData = getUserPoints()
+  const checkinData = JSON.parse(localStorage.getItem('checkinData') || '{"streak":0,"days":[]}')
+  const badges = [
+    { id: 'first_checkin', name: '初次打卡', icon: '🌱' },
+    { id: 'streak_7', name: '连续7天', icon: '🔥' },
+    { id: 'streak_30', name: '坚持一月', icon: '💎' },
+    { id: 'foodie_10', name: '食材达人', icon: '🥗' },
+    { id: 'chef_5', name: '食谱达人', icon: '🍳' },
+    { id: 'explorer', name: '探索者', icon: '🔍' },
+    { id: 'constitution_master', name: '体质大师', icon: '🧬' }
+  ]
+  const earnedBadges = pointsData.badges.map(id => badges.find(b => b.id === id)).filter(Boolean)
+
+  let html = '<div class="card">'
+  html += '<div class="card-title">🏆 我的成就</div>'
+  html += `<div style="display:flex;gap:20px;margin:12px 0;padding:16px;background:var(--surface);border-radius:var(--radius-sm);text-align:center;">`
+  html += `<div style="flex:1;"><div style="font-size:24px;font-weight:700;color:var(--primary);">${pointsData.points}</div><div style="font-size:11px;color:var(--text-muted);">积分</div></div>`
+  html += `<div style="flex:1;"><div style="font-size:24px;font-weight:700;color:var(--warm);">${checkinData.streak}</div><div style="font-size:11px;color:var(--text-muted);">连续天数</div></div>`
+  html += `<div style="flex:1;"><div style="font-size:24px;font-weight:700;color:var(--accent);">${earnedBadges.length}</div><div style="font-size:11px;color:var(--text-muted);">徽章</div></div>`
+  html += '</div>'
+
+  if (earnedBadges.length > 0) {
+    html += '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">已获得徽章</div>'
+    html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">'
+    earnedBadges.forEach(badge => {
+      html += `<span style="padding:6px 12px;background:var(--primary-glow);border-radius:16px;font-size:12px;">${badge.icon} ${badge.name}</span>`
+    })
+    html += '</div>'
+  }
+
+  const unearnedBadges = badges.filter(b => !pointsData.badges.includes(b.id))
+  if (unearnedBadges.length > 0) {
+    html += '<div style="font-size:13px;font-weight:600;color:var(--text);margin:12px 0 8px;">徽章墙</div>'
+    html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">'
+    unearnedBadges.forEach(badge => {
+      html += `<span style="padding:6px 12px;background:var(--surface);border-radius:16px;font-size:12px;opacity:0.4;">${badge.icon} ${badge.name}</span>`
+    })
+    html += '</div>'
+  }
+
+  html += '</div>'
+
+  showView('viewProfile')
+  updateTabBar()
+  document.getElementById('profileAvatar').textContent = '🏆'
+  document.getElementById('profileName').textContent = '健康成就'
+  document.getElementById('profilePhone').textContent = `积分 ${pointsData.points} · ${earnedBadges.length}个徽章`
   document.getElementById('currentConstiBadge').innerHTML = ''
   const menuCard = document.querySelector('#viewProfile .card')
   if (menuCard) menuCard.style.display = 'none'
@@ -470,9 +633,21 @@ function shareConstitution() {
     return
   }
   const c = getConstitutionById(currentResult.id)
-  const text = `我的中医体质是 ${c.emoji} ${c.name}！${c.description}\n\n推荐食材：${c.suitable.slice(0, 5).join('、')}\n\n来测测你的体质吧 ➡️ ${window.location.href}`
+  const foods = FOOD_DATABASE.filter(f => f.suitable.includes(c.id)).slice(0, 5)
+  const text = `🌿 我的中医体质是 ${c.emoji} ${c.name}！
+
+📝 体质特征：${c.description}
+
+💚 养生原则：${c.principle}
+
+🥦 推荐食材：${foods.map(f => f.name).join('、')}
+
+🔥 忌食或少食：${c.avoid.slice(0, 5).join('、')}
+
+📱 测测你的体质吧 ➡️ AI中医营养师小程序`
+
   if (navigator.share) {
-    navigator.share({ title: '我的中医体质报告', text }).catch(() => {})
+    navigator.share({ title: `${c.emoji} 我的${c.name}体质报告`, text }).catch(() => {})
   } else {
     navigator.clipboard.writeText(text).then(() => alert('体质报告已复制，快去分享给朋友吧！')).catch(() => {})
   }
@@ -879,7 +1054,7 @@ function renderResultContent(tab) {
               <div class="recipe-detail-card">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                   <div class="recipe-detail-name">🍲 ${f}</div>
-                  <span onclick="toggleRecipeFavorite('${f}')" style="cursor:pointer;font-size:20px;color:${getFavorites().recipes.includes(f) ? 'var(--warm)' : 'var(--text-muted)'};">${getFavorites().recipes.includes(f) ? '★' : '☆'}</span>
+                  <span class="recipe-star" data-name="${f}" style="cursor:pointer;font-size:20px;color:${getFavorites().recipes.includes(f) ? 'var(--warm)' : 'var(--text-muted)'};">${getFavorites().recipes.includes(f) ? '★' : '☆'}</span>
                 </div>
                 <div class="recipe-detail-ingredients">
                   <strong>食材：</strong>${recipe.ingredients.join('、')}
@@ -997,6 +1172,8 @@ function searchFood() {
   const query = input.value.trim()
   if (!query) return
 
+  saveSearchHistory(query)
+  addPoints(1, '搜索食材')
   const results = FOOD_DATABASE.filter(f =>
     f.name.includes(query) || f.effect.includes(query) || f.mechanism.includes(query) || (f.nutrition && f.nutrition.includes(query))
   )
@@ -1058,7 +1235,7 @@ function renderFoodCard(f) {
         <div class="food-name">${f.name}</div>
         <div style="display:flex;align-items:center;gap:6px;">
           ${suitability}
-          <span onclick="toggleFoodFavorite('${f.name}')" style="cursor:pointer;font-size:18px;color:${isFav ? 'var(--warm)' : 'var(--text-muted)'};">${isFav ? '★' : '☆'}</span>
+          <span class="food-star" data-name="${f.name}" style="cursor:pointer;font-size:18px;color:${isFav ? 'var(--warm)' : 'var(--text-muted)'};">${isFav ? '★' : '☆'}</span>
         </div>
       </div>
       <div class="property-tags">
@@ -1117,6 +1294,23 @@ function filterByMeridian(meridian) {
   }
   renderFoodList(currentFilter)
   saveAppState()
+}
+
+function renderSearchHistory() {
+  const container = document.getElementById('searchHistory')
+  if (!container) return
+  const history = getSearchHistory()
+  if (history.length === 0) {
+    container.style.display = 'none'
+    return
+  }
+  container.style.display = 'block'
+  container.innerHTML = `
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">最近搜索</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      ${history.map(h => `<span class="chip" onclick="document.getElementById('foodSearchInput').value='${h}';searchFood();" style="cursor:pointer;">${h}</span>`).join('')}
+    </div>
+  `
 }
 
 function renderFoodList(filter) {
@@ -1197,7 +1391,7 @@ function renderSeasonView(month) {
     <div class="recipe-card">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <div class="recipe-name">🍲 ${rec.recipe.name}</div>
-        <span onclick="toggleRecipeFavorite('${rec.recipe.name}')" style="cursor:pointer;font-size:20px;color:${isFav ? 'var(--warm)' : 'var(--text-muted)'};">${isFav ? '★' : '☆'}</span>
+        <span class="recipe-star" data-name="${rec.recipe.name}" style="cursor:pointer;font-size:20px;color:${isFav ? 'var(--warm)' : 'var(--text-muted)'};">${isFav ? '★' : '☆'}</span>
       </div>
       <div class="recipe-effect">${rec.recipe.effect}</div>
       <div class="recipe-ingredients">
@@ -1252,13 +1446,16 @@ function renderProfileView() {
 
 // ============ THEME TOGGLE ============
 function toggleTheme() {
+  console.log('toggleTheme called')
   const root = document.documentElement
   const current = root.getAttribute('data-theme') || ''
+  console.log('current theme:', current)
   if (current === 'light') {
     root.removeAttribute('data-theme')
   } else {
     root.setAttribute('data-theme', 'light')
   }
+  console.log('new theme:', root.getAttribute('data-theme'))
   saveAppState()
 }
 
@@ -1427,13 +1624,23 @@ document.addEventListener('click', function(e) {
   }
   const closeBtn = e.target.closest('.recipe-close-btn')
   if (closeBtn) {
-    const overlay = closeBtn.closest('[style*="position:fixed"]')
-    if (overlay) overlay.remove()
+    closeBtn.parentElement.parentElement.parentElement.remove()
     return
   }
   const card = e.target.closest('.recipe-card[data-recipe]')
   if (card) {
     showRecipeDetail(card.dataset.recipe)
+    return
+  }
+  const foodStar = e.target.closest('.food-star[data-name]')
+  if (foodStar) {
+    toggleFoodFavorite(foodStar.dataset.name)
+    return
+  }
+  const recipeStar = e.target.closest('.recipe-star[data-name]')
+  if (recipeStar) {
+    toggleRecipeFavorite(recipeStar.dataset.name)
+    return
   }
 })
 
@@ -1502,11 +1709,12 @@ function showStoryDetail(id) {
   overlay.className = 'result-reveal-overlay'
   overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;'
   overlay.onclick = e => { if (e.target === overlay) overlay.remove() }
+  const closeBtn = `<span onclick="this.parentElement.parentElement.parentElement.remove()" style="cursor:pointer;font-size:22px;color:var(--text-muted);">✕</span>`
   overlay.innerHTML = `
     <div style="background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);padding:24px;max-width:600px;width:100%;max-height:85vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div style="font-size:18px;font-weight:700;">📜 ${s.herb} · ${s.title}</div>
-        <span onclick="this.closest('[style*=\"position:fixed\"]').remove()" style="cursor:pointer;font-size:22px;color:var(--text-muted);">✕</span>
+        ${closeBtn}
       </div>
       <div style="font-size:12px;color:var(--accent);margin-bottom:12px;">${s.source}</div>
       <div style="font-size:14px;color:var(--text-secondary);line-height:1.9;white-space:pre-wrap;margin-bottom:16px;">${s.story}</div>
