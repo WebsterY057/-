@@ -3,7 +3,7 @@
   <view class="profile-header">
     <view class="avatar">👤</view>
     <view class="pinfo">
-      <text class="pname">AI中医营养师</text>
+      <text class="pname">AI体质食疗</text>
       <text class="pstatus" wx:if="{{userBody}}">{{userBody.gender || '未设置'}} · {{userBody.age || '—'}}岁 · {{userBody.height || '—'}}cm · {{userBody.weight || '—'}}kg</text>
       <text class="pstatus" wx:else>请先完善身体数据</text>
     </view>

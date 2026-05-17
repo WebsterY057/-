@@ -12,7 +12,7 @@
     "pages/profile/profile"
   ],
   "window": {
-    "navigationBarTitleText": "AI中医营养师",
+    "navigationBarTitleText": "AI体质食疗",
     "navigationBarBackgroundColor": "#1A221A",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#1A221A"

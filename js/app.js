@@ -123,7 +123,7 @@ function showView(viewId) {
     viewStories: '11个经典 · 中医典故'
   }
   const headerTitles = {
-    viewHome: '🌿 体质营养',
+    viewHome: '🌿 体质食疗',
     viewQuiz: '🧬 体质测试',
     viewBodyInfo: '📏 身体信息',
     viewResult: '📊 分析报告',
@@ -139,7 +139,7 @@ function showView(viewId) {
   if (headerSubtitles[viewId]) sub.textContent = headerSubtitles[viewId]
   else sub.textContent = 'AI中医 · 健康养生'
   if (headerTitles[viewId]) title.textContent = headerTitles[viewId]
-  else title.textContent = '🌿 体质营养'
+  else title.textContent = '🌿 体质食疗'
 }
 
 function updateTabBar() {
@@ -653,7 +653,7 @@ function shareConstitution() {
 
 🔥 忌食或少食：${c.avoid.slice(0, 5).join('、')}
 
-📱 测测你的体质吧 ➡️ AI中医营养师小程序`
+📱 测测你的体质吧 ➡️ AI体质食疗小程序`
 
   if (navigator.share) {
     navigator.share({ title: `${c.emoji} 我的${c.name}体质报告`, text }).catch(() => {})
@@ -1436,7 +1436,7 @@ function renderProfileView() {
   if (existing) existing.remove()
   document.getElementById('profileAvatar').textContent = '🌿'
   document.getElementById('profileName').textContent = '养生用户'
-  let info = 'AI中医营养师'
+  let info = 'AI体质食疗'
   if (userBodyInfo) {
     const h = parseFloat(userBodyInfo.height) / 100
     const w = parseFloat(userBodyInfo.weight)
