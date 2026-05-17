@@ -475,6 +475,9 @@ function toggleFoodFavorite(name) {
     renderFoodList(currentFilter)
   }
   renderDailyFood()
+  if (document.getElementById('favoritesDetail')) {
+    showFavoritesView()
+  }
 }
 
 function toggleRecipeFavorite(name) {
@@ -489,6 +492,9 @@ function toggleRecipeFavorite(name) {
   const viewSeason = document.getElementById('viewSeason')
   if (viewSeason && viewSeason.classList.contains('active')) {
     renderSeasonView(selectedMonth || undefined)
+  }
+  if (document.getElementById('favoritesDetail')) {
+    showFavoritesView()
   }
 }
 
