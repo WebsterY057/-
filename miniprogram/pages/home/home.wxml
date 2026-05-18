@@ -35,9 +35,14 @@
     <text class="streak-text" wx:else>开始健康打卡之旅</text>
   </view>
 
-  <view class="card solar-card" wx:if="{{solarTerm}}">
-    <text class="card-title">🌞 当前节气</text>
+  <view class="card poetry-card" wx:if="{{poetry}}" bindtap="showPoetryStory">
+    <text class="card-title">📜 节气诗词</text>
     <text class="solar-name">{{solarTerm.name}}</text>
+    <view class="poem-content">
+      <text class="poem-text">{{poetry.poem}}</text>
+      <text class="poem-author">{{poetry.author}}</text>
+    </view>
+    <text class="card-tip">点击了解诗词背后的故事</text>
   </view>
 
   <view class="grid">
@@ -79,4 +84,32 @@
   </view>
 
   <view class="disclaimer">本测评结果仅供参考，不构成医疗诊断建议。</view>
+
+  <view class="poetry-modal" wx:if="{{showPoetryModal}}" bindtap="hidePoetryModal">
+    <view class="modal-content" catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-title">{{solarTerm.name}}</text>
+        <text class="modal-close">×</text>
+      </view>
+      <view class="modal-body">
+        <view class="modal-poem">
+          <text class="modal-poem-text">{{poetry.poem}}</text>
+          <text class="modal-poem-author">{{poetry.author}}</text>
+        </view>
+        <view class="modal-divider"></view>
+        <view class="modal-story">
+          <text class="story-title">诗词背后的故事</text>
+          <text class="story-content">{{poetry.story}}</text>
+        </view>
+        <view class="modal-divider"></view>
+        <view class="modal-tip">
+          <text class="tip-title">养生提示</text>
+          <text class="tip-content">{{poetry.tip}}</text>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <text class="modal-btn" bindtap="hidePoetryModal">我知道了</text>
+      </view>
+    </view>
+  </view>
 </scroll-view>
