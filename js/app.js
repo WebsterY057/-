@@ -32,6 +32,7 @@ function init() {
   renderDailyFood()
   renderCheckIn()
   renderSolarTerm()
+  renderPoetry()
   updateTabBar()
   renderHomeGreeting()
 }
@@ -440,6 +441,50 @@ function renderSolarTerm() {
       </div>
     </div>
   `
+}
+
+let currentPoetry = null
+
+function getDayOfYear() {
+  const now = new Date()
+  const start = new Date(now.getFullYear(), 0, 0)
+  const diff = now - start
+  return Math.floor(diff / (1000 * 60 * 60 * 24))
+}
+
+function getPoetryForToday(solarTermName) {
+  const poems = POETRY_365[solarTermName]
+  if (!poems || poems.length === 0) return null
+  const index = getDayOfYear() % poems.length
+  return poems[index]
+}
+
+function renderPoetry() {
+  const term = getCurrentSolarTerm()
+  if (!term) return
+  currentPoetry = getPoetryForToday(term.name)
+  if (!currentPoetry) return
+  const section = document.getElementById('poetrySection')
+  if (!section) return
+  section.style.display = 'block'
+  document.getElementById('poetrySolarName').textContent = term.name
+  document.getElementById('poetryText').textContent = currentPoetry.poem
+  document.getElementById('poetryAuthor').textContent = currentPoetry.author
+}
+
+function showPoetryModal() {
+  if (!currentPoetry) return
+  const term = getCurrentSolarTerm()
+  document.getElementById('modalPoetryTitle').textContent = term ? term.name : ''
+  document.getElementById('modalPoemText').textContent = currentPoetry.poem
+  document.getElementById('modalPoemAuthor').textContent = currentPoetry.author
+  document.getElementById('modalStory').textContent = currentPoetry.story
+  document.getElementById('modalTip').textContent = currentPoetry.tip
+  document.getElementById('poetryModal').style.display = 'flex'
+}
+
+function hidePoetryModal() {
+  document.getElementById('poetryModal').style.display = 'none'
 }
 
 function getFavorites() {
