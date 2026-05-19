@@ -199,21 +199,16 @@ function switchTab(viewId, btn) {
 // ============ HOME ============
 function renderHomeGreeting() {
   document.getElementById('homeAvatar').textContent = '🌿'
-  document.getElementById('statFoodCount').textContent = FOOD_DATABASE.length + '+'
-  document.getElementById('statConstiCount').textContent = CONSTITUTIONS.length
-  document.getElementById('statSeasonCount').textContent = '4'
   const quickResult = document.getElementById('homeQuickResult')
   if (currentResult) {
     const c = getConstitutionById(currentResult.id)
-    document.getElementById('homeGreeting').textContent = `今日${c.name} · 吃对了吗？`
-    document.getElementById('homeSub').textContent = c.principleDetail.length > 40 ? c.principleDetail.slice(0, 40) + '…' : c.principleDetail
+    document.getElementById('homeGreeting').textContent = `今日${c.name}`
     const badge = document.getElementById('homeConstiBadge')
-    const consti = getConstitutionById(currentResult.id)
-    badge.innerHTML = `<span class="consti-badge" style="font-size:13px;">${consti.emoji} ${consti.name}</span>`
+    consti = getConstitutionById(currentResult.id)
+    badge.innerHTML = `<span class="consti-badge">${consti.emoji} ${consti.name}</span>`
     quickResult.style.display = ''
   } else {
     document.getElementById('homeGreeting').textContent = '今天也要好好吃饭'
-    document.getElementById('homeSub').textContent = 'AI体质辨识 + 中医食疗，科学健康养生'
     document.getElementById('homeConstiBadge').innerHTML = ''
     quickResult.style.display = 'none'
   }
@@ -325,17 +320,16 @@ function renderCheckIn() {
   } catch (e) {}
   const checkedIn = checkinData.days.includes(today)
   const dayCount = checkinData.days.length
-  document.getElementById('checkinDays').textContent = dayCount
 
-  container.innerHTML = `
-    <div class="checkin-card ${checkedIn ? 'checked' : ''}">
-      <div class="checkin-info">
-        <span class="checkin-icon">${checkedIn ? '✅' : '📌'}</span>
-        <span>${checkedIn ? '今日已打卡' : '今日养生打卡'}</span>
-        <span class="checkin-streak">🔥 连续 ${checkinData.streak} 天</span>
-      </div>
-      ${checkedIn ? '' : '<button class="btn btn-primary btn-sm" onclick="doCheckIn()">打卡</button>'}
-    </div>
+  const titleEl = document.getElementById('checkinTitle')
+  if (titleEl) {
+    titleEl.innerHTML = checkedIn ? `✅ 今日已打卡 <span style="font-size:13px;color:var(--text-muted);font-weight:normal;">🔥 连续${checkinData.streak}天</span>` : '📅 每日打卡'
+  }
+
+  container.innerHTML = checkedIn ? `
+    <div style="text-align:center;color:var(--text-secondary);font-size:14px;">坚持养生，遇见更好的自己！</div>
+  ` : `
+    <button class="btn btn-primary" onclick="doCheckIn()" style="width:100%;">打卡</button>
   `
 
   const tipContainer = document.getElementById('checkinTip')
@@ -737,6 +731,21 @@ function renderConstiList() {
       <div class="consti-preview">${c.description}</div>
     </div>
   `).join('')
+}
+
+let constiListExpanded = false
+
+function toggleConstiList() {
+  constiListExpanded = !constiListExpanded
+  const list = document.getElementById('constiList')
+  const toggle = document.getElementById('constiToggle')
+  if (constiListExpanded) {
+    list.style.display = 'block'
+    toggle.textContent = '点击收起 ▲'
+  } else {
+    list.style.display = 'none'
+    toggle.textContent = '点击查看 ▼'
+  }
 }
 
 function showConstitution(id) {

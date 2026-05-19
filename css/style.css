@@ -200,6 +200,48 @@ body {
   margin-bottom: 4px;
 }
 
+.home-quick-action {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0;
+}
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  text-align: left;
+}
+.action-btn:hover {
+  border-color: var(--primary);
+  background: var(--bg-card-hover);
+}
+.action-btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.action-btn-primary:hover {
+  opacity: 0.9;
+}
+.action-icon {
+  font-size: 24px;
+}
+.action-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+.action-btn-primary .action-text {
+  color: #fff;
+}
+
 .stats-row {
   display: flex;
   gap: 10px;

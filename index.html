@@ -30,36 +30,12 @@
 
       <!-- ========== HOME ========== -->
       <div class="view active" id="viewHome">
-        <div class="season-banner-mini" id="homeSeasonBanner"></div>
         <div class="hero-section">
           <div class="hero-profile" id="homeAvatar">🌿</div>
           <h2 id="homeGreeting">科学饮食，从吃对开始</h2>
-          <p class="hero-sub" id="homeSub">AI体质辨识 + 中医食疗，科学健康养生</p>
-          <div id="homeConstiBadge" style="margin-top:8px;"></div>
+          <div id="homeConstiBadge"></div>
         </div>
 
-        <div class="stats-row" id="homeStats">
-          <div class="stat-item">
-            <div class="stat-num" id="statFoodCount">60+</div>
-            <div class="stat-label">食材库</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-num" id="statConstiCount">9</div>
-            <div class="stat-label">中医体质</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-num" id="statSeasonCount">4</div>
-            <div class="stat-label">应季养生</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-num" id="checkinDays">0</div>
-            <div class="stat-label">打卡天数</div>
-          </div>
-        </div>
-
-        <div id="dailyFoodCard"></div>
-        <div id="checkinSection"></div>
-        <div id="checkinTip"></div>
         <div id="solarTermSection"></div>
 
         <div id="poetrySection" class="card" style="display:none;cursor:pointer;" onclick="showPoetryModal()">
@@ -94,51 +70,48 @@
           </div>
         </div>
 
+        <div class="home-quick-action">
+          <button class="action-btn action-btn-primary" onclick="startQuiz()">
+            <span class="action-icon">🧬</span>
+            <span class="action-text">开始体质测试</span>
+          </button>
+          <button class="action-btn" id="homeQuickResult" style="display:none;" onclick="showResultView()">
+            <span class="action-icon">📊</span>
+            <span class="action-text">查看我的报告</span>
+          </button>
+        </div>
+
         <div class="feature-grid">
-          <div class="feature-item" onclick="startQuiz()">
-            <span class="icon">🧬</span>
-            <span class="label">体质测试</span>
-            <span class="sublabel">AI精准辨识</span>
-          </div>
-          <div class="feature-item" onclick="showResultView()" id="homeQuickResult" style="display:none;">
-            <span class="icon">📊</span>
-            <span class="label">分析报告</span>
-            <span class="sublabel">体质详情</span>
-          </div>
           <div class="feature-item" onclick="switchTab('viewFoodSearch', document.querySelector(&quot;.tab-item[data-view='viewFoodSearch']&quot;))">
             <span class="icon">🥦</span>
             <span class="label">食材查询</span>
-            <span class="sublabel">性味归经</span>
           </div>
           <div class="feature-item" onclick="switchTab('viewSeason', document.querySelector(&quot;.tab-item[data-view='viewSeason']&quot;))">
             <span class="icon">📅</span>
             <span class="label">时令养生</span>
-            <span class="sublabel">应季食疗</span>
+          </div>
+          <div class="feature-item" onclick="switchTab('viewRecipes', document.querySelector(&quot;.tab-item[data-view='viewRecipes']&quot;))">
+            <span class="icon">🍳</span>
+            <span class="label">养生食谱</span>
           </div>
           <div class="feature-item" onclick="showWorkoutNutrition()">
             <span class="icon">🏃</span>
             <span class="label">运动营养</span>
-            <span class="sublabel">饮食方案</span>
-          </div>
-          <div class="feature-item" onclick="switchTab('viewStories', document.querySelector(&quot;.tab-item[data-view='viewProfile']&quot;))">
-            <span class="icon">📜</span>
-            <span class="label">中药故事</span>
-            <span class="sublabel">典故传说</span>
           </div>
         </div>
 
-        <div class="card" id="mealLogCard">
-          <div class="card-title">🍽️ 今日饮食记录</div>
-          <div id="mealLogList" style="margin-bottom:10px;"></div>
-          <div style="display:flex;gap:8px;">
-            <input type="text" id="mealInput" placeholder="记录吃了什么..." style="flex:1;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--text);outline:none;" onkeydown="if(event.key==='Enter')addMealLog()">
-            <button onclick="addMealLog()" style="padding:10px 16px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;">添加</button>
+        <div class="card" id="constiCard" style="cursor:pointer;" onclick="toggleConstiList()">
+          <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>📖 九种体质</span>
+            <span id="constiToggle" style="font-size:14px;color:var(--text-muted);">点击查看 ▼</span>
           </div>
+          <div id="constiList" style="display:none;"></div>
         </div>
 
-        <div class="card">
-          <div class="card-title">📖 九种体质速览</div>
-          <div id="constiList"></div>
+        <div class="card" id="checkinCard">
+          <div class="card-title" id="checkinTitle">📅 每日打卡</div>
+          <div id="checkinSection"></div>
+          <div id="checkinTip"></div>
         </div>
 
         <div class="disclaimer">
