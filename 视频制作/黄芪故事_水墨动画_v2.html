@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920, height=1080">
+  <title>黄芪救太后 · 水墨动画</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 1920px; height: 1080px;
+      overflow: hidden;
+      background: #1a1510;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #canvas { display: block; width: 1920px; height: 1080px; }
+    #ui {
+      position: fixed; top: 16px; right: 16px;
+      display: flex; flex-direction: column; gap: 8px; z-index: 100;
+    }
+    #ui button {
+      padding: 8px 16px; background: rgba(139,170,122,0.9); color: #fff;
+      border: none; border-radius: 6px; cursor: pointer; font-size: 13px;
+    }
+    #ui button:hover { background: rgba(139,170,122,1); }
+    #status {
+      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+      color: rgba(168,201,154,0.7); font-size: 13px; font-family: monospace;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="1920" height="1080"></canvas>
+  <div id="ui">
+    <button id="btnAudio">🎵 配乐</button>
+    <button id="btnExport">📽️ 导出帧</button>
+  </div>
+  <div id="status">时长: 30秒 | 1920×1080 | 按 G 导出 GIF | 按 S 保存 PNG</div>
+
+<script>
+// ================================================================
+//  黄芪救太后 · 水墨动画
+//  原生 Canvas API - 30秒 · 30fps
+// ================================================================
+
+const W = 1920, H = 1080;
+const FPS = 30;
+const TOTAL_MS = 30000;
+
+// --- 调色板 ---
+const C = {
+  bg:      [245, 240, 228],
+  ink:     [28,  22,  18],
+  inkMid:  [65,  55,  48],
+  inkLight:[110, 98,  88],
+  inkFade: [155, 140, 128],
+  accent:  [120, 60,  40],
+  sage:    [90,  110, 75],
+};
+
+// --- 时间轴 ---
+const TIMELINE = {
+  title:   { start: 0,    end: 3000 },
+  story1:  { start: 3000, end: 10000 },
+  story2:  { start: 10000,end: 19000 },
+  story3:  { start: 19000,end: 26000 },
+  lesson:  { start: 26000,end: 28500 },
+  source:  { start: 28500,end: 30000 },
+};
+
+function phase(ms) {
+  if (ms < TIMELINE.title.start)  return 'title';
+  if (ms < TIMELINE.story1.start) return 'title';
+  if (ms < TIMELINE.story1.end)   return 'story1';
+  if (ms < TIMELINE.story2.end)   return 'story2';
+  if (ms < TIMELINE.story3.end)   return 'story3';
+  if (ms < TIMELINE.lesson.end)   return 'lesson';
+  return 'source';
+}
+
+function phaseProgress(ms, ph) {
+  let s = TIMELINE[ph].start, e = TIMELINE[ph].end;
+  return Math.max(0, Math.min(1, (ms - s) / (e - s)));
+}
+
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+function easeOutExpo(t)  { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }
+function easeInOutCubic(t) { return t < 0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+function clamp(v,lo,hi) { return Math.max(lo, Math.min(hi, v)); }
+
+// --- Canvas ---
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+// --- 全局状态 ---
+let inkDrops = [];
+let brushStrokes = [];
+let inkParticles = [];
+let startTime = null;
+let lastFrameTime = 0;
+let running = false;
+let exportMode = false;
+
+// ================================================================
+//  噪声
+// ================================================================
+let noiseData = new Float32Array(512 * 512);
+(function initNoise() {
+  for (let i = 0; i < noiseData.length; i++) noiseData[i] = Math.random();
+})();
+function noise(x, y) {
+  x = ((x % 512) + 512) % 512;
+  y = ((y % 512) + 512) % 512;
+  return noiseData[Math.floor(y) * 512 + Math.floor(x)];
+}
+function fbm(x, y, octaves=4) {
+  let v = 0, amp = 1, freq = 1, sum = 0;
+  for (let i = 0; i < octaves; i++) {
+    v += noise(x * freq, y * freq) * amp;
+    sum += amp; amp *= 0.5; freq *= 2;
+  }
+  return v / sum;
+}
+
+// ================================================================
+//  绘制：宣纸背景
+// ================================================================
+function drawBg(ms) {
+  // 基础色
+  ctx.fillStyle = `rgb(${C.bg[0]},${C.bg[1]},${C.bg[2]})`;
+  ctx.fillRect(0, 0, W, H);
+
+  // 纸张纹理（噪声）
+  let imgData = ctx.getImageData(0, 0, W, H);
+  let d = imgData.data;
+  let t = ms * 0.0003;
+  for (let y = 0; y < H; y += 3) {
+    for (let x = 0; x < W; x += 3) {
+      let n1 = fbm(x * 0.004 + t * 0.1, y * 0.004, 3);
+      let n2 = fbm(x * 0.01 + 50 + t * 0.05, y * 0.01 + 50, 3);
+      let b = (n1 * 0.6 + n2 * 0.4) * 14;
+      let idx = (y * W + x) * 4;
+      d[idx]   = clamp(d[idx]   - b * 0.5, 0, 255);
+      d[idx+1] = clamp(d[idx+1] - b * 0.4, 0, 255);
+      d[idx+2] = clamp(d[idx+2] - b * 0.3, 0, 255);
+    }
+  }
+  ctx.putImageData(imgData, 0, 0);
+}
+
+// ================================================================
+//  墨滴
+// ================================================================
+class InkDrop {
+  constructor(x, y) {
+    this.x = x; this.y = y;
+    this.vx = (Math.random()-0.5)*5;
+    this.vy = (Math.random()-0.5)*5 - 2;
+    this.life = 1.0;
+    this.size = Math.random()*10+4;
+    this.splatters = [];
+    for (let i = 0; i < Math.floor(Math.random()*5)+2; i++) {
+      this.splatters.push({
+        x, y,
+        vx: (Math.random()-0.5)*8, vy: (Math.random()-0.5)*8,
+        size: Math.random()*4+1, life: 1.0
+      });
+    }
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy;
+    this.vy += 0.15; this.vx *= 0.98;
+    this.life -= 0.02;
+    for (let s of this.splatters) {
+      s.x += s.vx; s.y += s.vy; s.vy += 0.2; s.vx *= 0.97; s.life -= 0.03;
+    }
+  }
+  draw() {
+    if (this.life <= 0) return;
+    ctx.globalAlpha = this.life * 0.85;
+    ctx.fillStyle = `rgb(${C.ink[0]},${C.ink[1]},${C.ink[2]})`;
+    ctx.beginPath();
+    ctx.ellipse(this.x, this.y, this.size * this.life, this.size * this.life * 0.7, 0, 0, Math.PI*2);
+    ctx.fill();
+    for (let s of this.splatters) {
+      if (s.life <= 0) continue;
+      ctx.globalAlpha = s.life * 0.7;
+      ctx.beginPath();
+      ctx.ellipse(s.x, s.y, s.size * s.life, s.size * s.life * 0.6, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  isDead() { return this.life <= 0 && this.splatters.every(s=>s.life<=0); }
+}
+
+// ================================================================
+//  毛笔笔画
+// ================================================================
+class BrushStroke {
+  constructor(x, y, angle, length, thickness) {
+    this.points = [];
+    let steps = Math.floor(length / 4);
+    for (let i = 0; i < steps; i++) {
+      let t = i / steps;
+      this.points.push({
+        x: x + Math.cos(angle)*length*t + (Math.random()-0.5)*5,
+        y: y + Math.sin(angle)*length*t + (Math.random()-0.5)*5,
+        t
+      });
+    }
+    this.thickness = thickness;
+    this.life = 1.0;
+    this.drawn = 0;
+  }
+  update() {
+    if (this.drawn < 1.0) this.drawn = Math.min(1.0, this.drawn + 0.05);
+    this.life -= 0.001;
+  }
+  draw() {
+    if (this.points.length < 2 || this.drawn <= 0) return;
+    let drawnPts = Math.floor(this.points.length * this.drawn);
+    ctx.globalAlpha = this.life * 0.6;
+    ctx.strokeStyle = `rgb(${C.ink[0]},${C.ink[1]},${C.ink[2]})`;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    for (let i = 1; i < drawnPts; i++) {
+      let pt0 = this.points[i-1], pt1 = this.points[i];
+      let w = this.thickness * Math.sin(pt1.t * Math.PI) * 0.7 + this.thickness * 0.3;
+      ctx.lineWidth = w;
+      ctx.beginPath();
+      ctx.moveTo(pt0.x, pt0.y);
+      ctx.lineTo(pt1.x, pt1.y);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+  isDead() { return this.life <= 0 && this.drawn >= 1.0; }
+}
+
+// ================================================================
+//  绘制：片头标题
+// ================================================================
+function drawTitle(ms, progress) {
+  let t = easeOutCubic(progress);
+
+  // 墨迹晕染扩散
+  let maxR = 500 * t;
+  for (let r = maxR; r > 0; r -= 40) {
+    let a = (1 - r/maxR) * 0.06 * t;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = `rgb(${C.inkMid[0]},${C.inkMid[1]},${C.inkMid[2]})`;
+    ctx.beginPath();
+    ctx.ellipse(W/2, H/2-40, r, r*0.7, 0, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // 标题：黄芪
+  let titleAlpha = clamp((t - 0.3)/0.7, 0, 1);
+  let titleSize = lerp(40, 130, easeOutExpo(clamp((t-0.3)/0.7, 0, 1)));
+  ctx.globalAlpha = titleAlpha;
+  ctx.fillStyle = `rgb(${C.ink[0]},${C.ink[1]},${C.ink[2]})`;
+  ctx.font = `${titleSize}px "Ma Shan Zheng", serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText("黄 芪", W/2, H/2 - 60);
+
+  // 副标题
+  let subAlpha = clamp((t - 0.5)/0.5, 0, 1);
+  ctx.globalAlpha = subAlpha * 0.8;
+  ctx.fillStyle = `rgb(${C.inkMid[0]},${C.inkMid[1]},${C.inkMid[2]})`;
+  ctx.font = `${lerp(18, 52, easeOutExpo(clamp((t-0.5)/0.5,0,1)))}px "Noto Serif SC", serif`;
+  ctx.fillText("黄芪救太后", W/2, H/2 + 40);
+
+  // 装饰线
+  let lineAlpha = clamp((t - 0.6)/0.4, 0, 1) * 0.6;
+  ctx.globalAlpha = lineAlpha;
+  ctx.strokeStyle = `rgb(${C.inkMid[0]},${C.inkMid[1]},${C.inkMid[2]})`;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(W/2 - 220, H/2 + 80);
+  ctx.lineTo(W/2 + 220, H/2 + 80);
+  ctx.stroke();
+
+  // 印章
+  if (t > 0.7) {
+    let sealA = clamp((t - 0.7)/0.3, 0, 1) * 0.85;
+    ctx.globalAlpha = sealA;
+    ctx.fillStyle = `rgb(${C.accent[0]},${C.accent[1]},${C.accent[2]})`;
+    ctx.fillRect(W/2+170, H/2+40, 65, 65);
+    ctx.fillStyle = `rgb(${C.bg[0]},${C.bg[1]},${C.bg[2]})`;
+    ctx.font = '22px "Ma Shan Zheng", serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText("药", W/2+202, H/2+72);
+  }
+  ctx.globalAlpha = 1;
+}
+
+function lerp(a, b, t) { return a + (b-a)*t; }
+
+// ================================================================
+//  绘制：背景山水（淡墨）
+// ================================================================
+function drawMountains(ms, ph) {
+  let breathe = Math.sin(ms * 0.0008) * 8;
+
+  // 远山
+  ctx.globalAlpha = 0.055 + 0.02 * Math.sin(ms * 0.001);
+  ctx.fillStyle = `rgb(${C.inkFade[0]},${C.inkFade[1]},${C.inkFade[2]})`;
+  ctx.beginPath();
+  ctx.moveTo(0, H);
+  let farPts = [[0,H*0.65],[W*0.15,H*0.45],[W*0.3,H*0.55],[W*0.45,H*0.35],[W*0.6,H*0.5],[W*0.75,H*0.4],[W*0.9,H*0.52],[W,H*0.6],[W,H]];
+  for (let i=0; i<farPts.length; i++) {
+    let [px,py] = farPts[i];
+    if (i===0) ctx.moveTo(px, py+breathe);
+    else ctx.lineTo(px, py+breathe);
+  }
+  ctx.closePath();
+  ctx.fill();
+
+  // 近山
+  ctx.globalAlpha = 0.04;
+  ctx.fillStyle = `rgb(${C.inkLight[0]},${C.inkLight[1]},${C.inkLight[2]})`;
+  ctx.beginPath();
+  ctx.moveTo(0, H);
+  let nearPts = [[0,H*0.72],[W*0.2,H*0.58],[W*0.4,H*0.68],[W*0.6,H*0.52],[W*0.8,H*0.62],[W,H*0.7],[W,H]];
+  for (let i=0; i<nearPts.length; i++) {
+    let [px,py] = nearPts[i];
+    if (i===0) ctx.moveTo(px, py+breathe*0.5);
+    else ctx.lineTo(px, py+breathe*0.5);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalAlpha = 1;
+}
+
+// ================================================================
+//  绘制：文字（逐字显现）
+// ================================================================
+function drawChars(text, x, y, revealed, size, color, align='left') {
+  ctx.fillStyle = color;
+  ctx.font = `${size}px "Noto Serif SC", serif`;
+  ctx.textAlign = align;
+  ctx.textBaseline = 'top';
+  let charW = size * 1.1;
+  for (let i = 0; i < text.length && i < revealed; i++) {
+    ctx.fillText(text[i], x + i * charW, y);
+  }
+}
+
+// ================================================================
+//  绘制：故事段落
+// ================================================================
+function drawStoryContent(ms, ph, progress) {
+  let t = easeOutCubic(progress);
+
+  if (ph === 'story1') {
+    drawMountains(ms, ph);
+
+    let textAlpha = clamp((t - 0.2)/0.8, 0, 1);
+    let lines = [
+      "清代光绪年间，慈禧太后因政事操劳过度，",
+      "又染痢疾，日汲十余次，御医束手无策。"
+    ];
+    ctx.globalAlpha = textAlpha;
+    ctx.fillStyle = `rgb(${C.inkMid[0]},${C.inkMid[1]},${C.inkMid[2]})`;
+    ctx.font = '34px "Noto Serif SC", serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+
+    let baseX = W * 0.1, baseY = H * 0.58;
+    let charW = 22, lineH = 52;
+    let allChars = lines.join('');
+    let revealed = Math.floor(allChars.length * t);
+    let charCount = 0;
+    for (let li = 0; li < lines.length; li++) {
+      for (let ci = 0; ci < lines[li].length; ci++) {
+        if (charCount < revealed) {
+          ctx.fillText(lines[li][ci], baseX + ci * charW, baseY + li * lineH);
+        }
+        charCount++;
+      }
+    }
+
+    // 右下角淡化装饰
+    if (t > 0.5) {
+      ctx.globalAlpha = clamp((t-0.5)/0.5, 0, 1) * 0.15;
+      ctx.fillStyle = `rgb(${C.inkLight[0]},${C.inkLight[1]},${C.inkLight[2]})`;
+      ctx.font = '260px "Ma Shan Zheng", serif';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText("后", W*0.92, H*0.92);
+    }
+
+  } else if (ph === 'story2') {
+    drawMountains(ms, ph);
+
+    let textAlpha = clamp((t - 0.2)/0.8, 0, 1);
+    let lines = [
+      "名医马培之以大量黄芪一两，配以党参白术，",
+      "煎汤进服。慈禧服后次日痢止，",
+      "三日体力渐复。"
+    ];
+    ctx.globalAlpha = textAlpha;
+    ctx.fillStyle = `rgb(${C.inkMid[0]},${C.inkMid[1]},${C.inkMid[2]})`;
+    ctx.font = '34px "Noto Serif SC", serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+
+    let baseX = W * 0.1, baseY = H * 0.58;
+    let charW = 22, lineH = 52;
+    let allChars = lines.join('');
+    let revealed = Math.floor(allChars.length * t);
+    let charCount = 0;
+    for (let li = 0; li < lines.length; li++) {
+      for (let ci = 0; ci < lines[li].length; ci++) {
+        if (charCount < revealed) {
+          ctx.fillText(lines[li][ci], baseX + ci * charW, baseY + li * lineH);
+        }
+        charCount++;
+      }
+    }
+
+    // 印章
+    if (t > 0.6) {
+      let sa = clamp((t-0.6)/0.4, 0, 1) * 0.8;
+      ctx.globalAlpha = sa;
+      ctx.fillStyle = `rgb(${C.accent[0]},${C.accent[1]},${C.accent[2]})`;
+      ctx.fillRect(W*0.82, H*0.78, 80, 80);
+      ctx.fillStyle = `rgb(${C.bg[0]},${C.bg[1]},${C.bg[2]})`;
+      ctx.font = '28px "Ma Shan Zheng", serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText("芪", W*0.82+40, H*0.78+40);
+    }
+
+  } else if (ph === 'story3') {
+    drawMountains(ms, ph);
+
+    let textAlpha = clamp((t - 0.2)/0.8, 0, 1);
+    ctx.globalAlpha = textAlpha;
+    ctx.fillStyle = `rgb(${C.ink[0]},${C.ink[1]},${C.ink[2]})`;
+    ctx.font = '36px "Noto Serif SC", serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    let line1 = "马培之解释道：太后久病伤气，气陷则汲不止。";
+    let line2 = "黄芪升阳举陷，补气固脱，乃治本之策。";
+    let allChars = line1 + line2;
+    let revealed = Math.floor(allChars.length * t);
+    let charCount = 0;
+    let charW = 36, y1 = H/2 - 44, y2 = H/2 + 30;
+    let startX = W/2 - (Math.max(line1.length, line2.length) * charW) / 2;
+    for (let ci = 0; ci < line1.length; ci++) {
+      if (charCount < revealed) ctx.fillText(line1[ci], startX + ci*charW, y1);
+      charCount++;
+    }
+    for (let ci = 0; ci < line2.length; ci++) {
+      if (charCount < revealed) ctx.fillText(line2[ci], startX + ci*charW, y2);
+      charCount++;
+    }
+
+    // 装饰引号
+    if (t > 0.3) {
+      ctx.globalAlpha = clamp((t-0.3)/0.7, 0, 1) * 0.3;
+      ctx.fillStyle = `rgb(${C.inkLight[0]},${C.inkLight[1]},${C.inkLight[2]})`;
+      ctx.font = '110px "Ma Shan Zheng", serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText("引", W*0.1, H*0.45);
+      ctx.fillText("释", W*0.9, H*0.55);
+    }
+
+  } else if (ph === 'lesson') {
+    let textAlpha = clamp((t - 0.2)/0.8, 0, 1);
+    ctx.globalAlpha = textAlpha;
+    ctx.fillStyle = `rgb(${C.sage[0]},${C.sage[1]},${C.sage[2]})`;
+    ctx.font = '38px "Noto Serif SC", serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    let lines = ["养生启示", "黄芪为补气升阳第一要药", "凡气虚下陷之久汲、脱肛皆可配伍使用"];
+    let allChars = lines.join('');
+    let revealed = Math.floor(allChars.length * t);
+    let charCount = 0;
+    let charW = 38, lineH = 62;
+    let yBase = H/2 - 60;
+    let startX = W/2 - (24 * charW) / 2;
+    for (let li = 0; li < lines.length; li++) {
+      let lineLen = lines[li].length;
+      let lineStartX = W/2 - (lineLen * charW) / 2;
+      for (let ci = 0; ci < lineLen; ci++) {
+        if (charCount < revealed) {
+          ctx.fillText(lines[li][ci], lineStartX + ci*charW, yBase + li*lineH);
+        }
+        charCount++;
+      }
+    }
+
+    if (t > 0.5) {
+      ctx.globalAlpha = clamp((t-0.5)/0.5, 0, 1) * 0.2;
+      ctx.fillStyle = `rgb(${C.sage[0]},${C.sage[1]},${C.sage[2]})`;
+      ctx.font = '150px "Ma Shan Zheng", serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText("药", W*0.85, H*0.25);
+    }
+
+  } else if (ph === 'source') {
+    let textAlpha = clamp((t - 0.2)/0.8, 0, 1);
+    ctx.globalAlpha = textAlpha * 0.7;
+    ctx.fillStyle = `rgb(${C.inkLight[0]},${C.inkLight[1]},${C.inkLight[2]})`;
+    ctx.font = '32px "Noto Serif SC", serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText("《清宫医案》· 马培之医案", W/2, H/2);
+  }
+
+  ctx.globalAlpha = 1;
+}
+
+// ================================================================
+//  随机生成墨迹
+// ================================================================
+function spawnInkElements(ph) {
+  if (Math.random() < 0.06) {
+    let x = Math.random() * W;
+    let y = Math.random() * H * 0.5 + H * 0.25;
+    let angle = Math.random() * Math.PI - Math.PI/2;
+    brushStrokes.push(new BrushStroke(x, y, angle, Math.random()*80+40, Math.random()*3+2));
+  }
+  if (Math.random() < 0.05) {
+    inkDrops.push(new InkDrop(Math.random()*W, Math.random()*H*0.6));
+  }
+}
+
+// ================================================================
+//  主渲染循环
+// ================================================================
+function render(timestamp) {
+  if (!startTime) startTime = timestamp;
+  let ms = exportMode ? lastFrameTime : timestamp - startTime;
+  lastFrameTime = ms;
+
+  let ph = phase(ms);
+  let prog = phaseProgress(ms, ph);
+
+  // 背景
+  drawBg(ms);
+
+  // 墨迹元素
+  spawnInkElements(ph);
+
+  // 更新和绘制笔触
+  brushStrokes = brushStrokes.filter(bs => { bs.update(); bs.draw(); return !bs.isDead(); });
+
+  // 更新和绘制墨滴
+  inkDrops = inkDrops.filter(d => { d.update(); d.draw(); return !d.isDead(); });
+
+  // 阶段内容
+  if (ph === 'title') {
+    drawTitle(ms, prog);
+  } else {
+    drawStoryContent(ms, ph, prog);
+  }
+
+  // 右上角时间指示
+  let sec = Math.floor(ms / 1000);
+  ctx.globalAlpha = 0.3;
+  ctx.fillStyle = `rgb(${C.inkLight[0]},${C.inkLight[1]},${C.inkLight[2]})`;
+  ctx.font = '14px monospace';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'top';
+  ctx.fillText(`${sec}s / 30s`, W - 20, 20);
+  ctx.globalAlpha = 1;
+
+  // 片尾淡出
+  let fadeProgress = clamp((ms - TIMELINE.source.start) / (TOTAL_MS - TIMELINE.source.start), 0, 1);
+  if (fadeProgress > 0) {
+    ctx.globalAlpha = fadeProgress;
+    ctx.fillStyle = `rgb(${C.bg[0]},${C.bg[1]},${C.bg[2]})`;
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalAlpha = 1;
+  }
+
+  if (ms >= TOTAL_MS && !exportMode) {
+    running = false;
+    return;
+  }
+
+  if (running || exportMode) {
+    requestAnimationFrame(render);
+  }
+}
+
+// ================================================================
+//  音频系统（Web Audio API）
+// ================================================================
+let audioCtx = null;
+let audioStarted = false;
+
+function initAudio() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  // 古风五声音阶 drone
+  const freqs = [98, 130.81, 147, 196, 220, 261.63, 294];
+  for (let freq of freqs) {
+    let osc = audioCtx.createOscillator();
+    let gain = audioCtx.createGain();
+    let filter = audioCtx.createBiquadFilter();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    filter.type = 'lowpass';
+    filter.frequency.value = 500;
+    gain.gain.value = 0;
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    let target = freq < 150 ? 0.04 : freq < 200 ? 0.03 : 0.02;
+    gain.gain.setTargetAtTime(target, audioCtx.currentTime, 2);
+  }
+}
+
+function toggleAudio() {
+  if (!audioCtx) { initAudio(); return; }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  } else {
+    audioCtx.suspend();
+  }
+}
+document.getElementById('btnAudio').addEventListener('click', () => {
+  initAudio();
+  toggleAudio();
+});
+
+// ================================================================
+//  帧导出模式
+// ================================================================
+function exportFrames() {
+  if (exportMode) return;
+  exportMode = true;
+  startTime = null;
+  lastFrameTime = 0;
+  running = true;
+  requestAnimationFrame(render);
+
+  let frame = 0;
+  const FPS_MS = 1000 / FPS;
+
+  let interval = setInterval(() => {
+    let ms = frame * FPS_MS;
+    lastFrameTime = ms;
+
+    // 重新渲染
+    let ph = phase(ms);
+    let prog = phaseProgress(ms, ph);
+
+    drawBg(ms);
+    spawnInkElements(ph);
+    brushStrokes = brushStrokes.filter(bs => { bs.update(); bs.draw(); return !bs.isDead(); });
+    inkDrops = inkDrops.filter(d => { d.update(); d.draw(); return !d.isDead(); });
+
+    if (ph === 'title') drawTitle(ms, prog);
+    else drawStoryContent(ms, ph, prog);
+
+    // 淡出
+    let fadeP = clamp((ms - TIMELINE.source.start) / (TOTAL_MS - TIMELINE.source.start), 0, 1);
+    if (fadeP > 0) {
+      ctx.globalAlpha = fadeP;
+      ctx.fillStyle = `rgb(${C.bg[0]},${C.bg[1]},${C.bg[2]})`;
+      ctx.fillRect(0,0,W,H);
+      ctx.globalAlpha = 1;
+    }
+
+    // 保存帧
+    let filename = 'frame_' + String(frame+1).padStart(4,'0') + '.png';
+    let dataURL = canvas.toDataURL('image/png');
+    let a = document.createElement('a');
+    a.href = dataURL;
+    a.download = filename;
+    a.click();
+
+    frame++;
+    if (frame >= FPS * 30) {
+      clearInterval(interval);
+      exportMode = false;
+      alert('帧导出完成！共 ' + frame + ' 帧');
+    }
+  }, 10);
+}
+
+document.getElementById('btnExport').addEventListener('click', exportFrames);
+
+// ================================================================
+//  seek(ms) - 由外部帧导出调用（puppeteer / headless）
+// ================================================================
+window.seekTo = function(ms) {
+  let ph = phase(ms);
+  let prog = phaseProgress(ms, ph);
+
+  drawBg(ms);
+  spawnInkElements(ph);
+  brushStrokes = brushStrokes.filter(bs => { bs.update(); bs.draw(); return !bs.isDead(); });
+  inkDrops = inkDrops.filter(d => { d.update(); d.draw(); return !d.isDead(); });
+
+  if (ph === 'title') drawTitle(ms, prog);
+  else drawStoryContent(ms, ph, prog);
+
+  // 淡出
+  let fadeP = clamp((ms - TIMELINE.source.start) / (TOTAL_MS - TIMELINE.source.start), 0, 1);
+  if (fadeP > 0) {
+    ctx.globalAlpha = fadeP;
+    ctx.fillStyle = `rgb(${C.bg[0]},${C.bg[1]},${C.bg[2]})`;
+    ctx.fillRect(0,0,W,H);
+    ctx.globalAlpha = 1;
+  }
+};
+window._ready = true;
+
+// ================================================================
+//  键盘控制
+// ================================================================
+document.addEventListener('keydown', (e) => {
+  if (e.key === 's' || e.key === 'S') {
+    let dataURL = canvas.toDataURL('image/png');
+    let a = document.createElement('a');
+    a.href = dataURL;
+    a.download = 'huangqi_frame.png';
+    a.click();
+  }
+  if (e.key === 'g' || e.key === 'G') {
+    alert('GIF 导出：请使用"导出帧"按钮，导出后用 ffmpeg 合成视频');
+  }
+});
+
+// ================================================================
+//  启动
+// ================================================================
+running = true;
+requestAnimationFrame(render);
+document.getElementById('status').textContent =
+  '播放中 | 时长: 30秒 | 1920×1080 | 🎵配乐 🎤旁白(请在浏览器中打开) | 📽️导出帧';
+</script>
+</body>
+</html>

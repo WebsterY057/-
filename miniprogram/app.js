@@ -9,7 +9,6 @@ App({
   },
   onLaunch() {
     this.loadData()
-    this.loadTheme()
   },
   loadData() {
     try {

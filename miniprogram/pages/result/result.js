@@ -16,15 +16,20 @@ Page({
       return
     }
     const c = getConstitutionById(result.id)
-    const raw = result.scores || []
-    const sorted = [...raw].sort((a, b) => b[1] - a[1])
-    const top5 = sorted.slice(0, 5)
+    if (!c) {
+      wx.showToast({ title: '体质数据异常', icon: 'none' })
+      return
+    }
+    const raw = Object.entries(result.scores || {})
+      .filter(([id]) => id !== 'pinghe')
+      .sort((a, b) => b[1] - a[1])
+    const top5 = raw.slice(0, 5)
     const topScores = top5.map(([id, score]) => {
       const con = CONSTITUTIONS.find(c => c.id === id)
-      return { id, name: con?.name || id, score, color: con?.color || '#4CAF50' }
+      return { id, name: con?.name || id, score, color: con?.color || '#8BAA7A' }
     })
     this.setData({
-      constitution: { ...c, name: result.name || c?.name },
+      constitution: c,
       topScores,
       maxScore: Math.max(...top5.map(s => s[1]), 1)
     })

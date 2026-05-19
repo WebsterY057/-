@@ -77,7 +77,7 @@ Page({
   },
   skipSymptom() {
     app.globalData.quizAnswers = this.data.answers
-    app.globalData.quizSymptomScores = {}
+    app.globalData.quizSymomScores = {}
     wx.navigateTo({ url: '/pages/body/body' })
   }
 })

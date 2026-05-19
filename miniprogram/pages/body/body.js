@@ -43,7 +43,7 @@ Page({
 
     const constitutionId = calculateResult(scores)
     const constitution = getConstitutionById(constitutionId)
-    const result = { constitutionId, constitution, scores }
+    const result = { id: constitutionId, constitution, scores }
 
     app.globalData.currentResult = result
     app.globalData.currentConstitutionId = constitutionId

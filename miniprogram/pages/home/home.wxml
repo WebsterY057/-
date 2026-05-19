@@ -1,9 +1,12 @@
-<scroll-view class="container" scroll-y>
-  <view class="header">
-    <text class="greeting">{{greeting}} 👋</text>
-    <text class="subtitle">今日宜养生</text>
+<scroll-view class="container" scroll-y style="height: 100vh;">
+  <!-- Hero Section -->
+  <view class="hero-section">
+    <view class="hero-profile">{{heroAvatar}}</view>
+    <h2 class="hero-greeting">{{heroGreeting}}</h2>
+    <view class="consti-badge" wx:if="{{hasResult}}">{{currentConstitution.emoji}} {{currentConstitution.name}}</view>
   </view>
 
+  <!-- 统计数据行 -->
   <view class="stats-row">
     <view class="stat-item">
       <text class="stat-num">{{foodCount}}</text>
@@ -23,20 +26,33 @@
     </view>
   </view>
 
-  <view class="card daily-card" bindtap="go" data-url="/pages/food/food">
-    <text class="card-title">🍽️ 今日推荐食材</text>
-    <text class="daily-food">{{dailyFood}}</text>
-    <text class="card-sub">查看食材详情及搭配建议</text>
+  <!-- 快捷操作按钮 -->
+  <view class="home-quick-action">
+    <view class="action-btn action-btn-primary" bindtap="goQuiz">
+      <text class="action-icon">🧬</text>
+      <text class="action-text">开始体质测试</text>
+    </view>
+    <view class="action-btn" bindtap="goResult" wx:if="{{hasResult}}">
+      <text class="action-icon">📊</text>
+      <text class="action-text">查看我的报告</text>
+    </view>
   </view>
 
-  <view class="card checkin-card" bindtap="doCheckin">
-    <text class="card-title">{{checkedIn ? '✅ 已打卡' : '📅 每日打卡'}}</text>
-    <text class="streak-text" wx:if="{{streak>0}}">已连续打卡 {{streak}} 天</text>
-    <text class="streak-text" wx:else>开始健康打卡之旅</text>
+  <!-- 每日推荐食谱 -->
+  <view class="card daily-food-card" wx:if="{{dailyRecipe}}" bindtap="showRecipeDetail">
+    <view class="card-title">🍽️ 每日推荐食谱</view>
+    <view class="daily-food-main">
+      <text class="daily-food-name">{{dailyRecipe.name}}</text>
+      <text class="daily-food-arrow">›</text>
+    </view>
+    <text class="daily-food-reason" wx:if="{{hasResult}}">根据您的{{currentConstitution.name}}体质推荐</text>
+    <text class="daily-food-reason" wx:else>根据今日节气 · {{solarTerm.name}} 推荐</text>
+    <text class="daily-food-tap-hint">点击查看食材和做法</text>
   </view>
 
+  <!-- 诗词卡片 -->
   <view class="card poetry-card" wx:if="{{poetry}}" bindtap="showPoetryStory">
-    <text class="card-title">📜 节气诗词</text>
+    <view class="card-title">📜 节气诗词</view>
     <text class="solar-name">{{solarTerm.name}}</text>
     <view class="poem-content">
       <text class="poem-text">{{poetry.poem}}</text>
@@ -45,27 +61,39 @@
     <text class="card-tip">点击了解诗词背后的故事</text>
   </view>
 
-  <view class="grid">
-    <view class="grid-item" bindtap="goQuiz">
-      <text class="grid-icon">📋</text>
-      <text class="grid-label">体质测试</text>
+  <!-- 打卡卡片 -->
+  <view class="checkin-card" bindtap="doCheckin">
+    <view class="card-title">{{checkedIn ? '✅ 已打卡' : '📅 每日打卡'}}</view>
+    <text class="streak-text" wx:if="{{streak>0}}">🔥 连续 {{streak}} 天</text>
+    <text class="streak-text" wx:else>开始健康打卡之旅</text>
+  </view>
+
+  <!-- 打卡提示（已打卡时显示） -->
+  <view class="checkin-tip" wx:if="{{checkedIn && checkinTip}}">{{checkinTip}}</view>
+
+  <!-- 功能入口 2x2 -->
+  <view class="feature-grid">
+    <view class="feature-item" bindtap="goQuiz">
+      <text class="icon">🧬</text>
+      <text class="label">体质测试</text>
     </view>
-    <view class="grid-item" bindtap="goTab" data-url="/pages/food/food">
-      <text class="grid-icon">🥗</text>
-      <text class="grid-label">食材查询</text>
+    <view class="feature-item" bindtap="goTab" data-url="/pages/food/food">
+      <text class="icon">🥦</text>
+      <text class="label">食材查询</text>
     </view>
-    <view class="grid-item" bindtap="go" data-url="/pages/season/season">
-      <text class="grid-icon">🌱</text>
-      <text class="grid-label">时令养生</text>
+    <view class="feature-item" bindtap="go" data-url="/pages/season/season">
+      <text class="icon">📅</text>
+      <text class="label">时令养生</text>
     </view>
-    <view class="grid-item" bindtap="go" data-url="/pages/workout/workout">
-      <text class="grid-icon">🏃</text>
-      <text class="grid-label">运动营养</text>
+    <view class="feature-item" bindtap="go" data-url="/pages/workout/workout">
+      <text class="icon">🏃</text>
+      <text class="label">运动营养</text>
     </view>
   </view>
 
+  <!-- 当前体质（已测评） -->
   <view class="card constitution-card" wx:if="{{hasResult}}">
-    <text class="card-title">🧬 当前体质</text>
+    <view class="card-title">🧬 当前体质</view>
     <view class="constitution-info">
       <text class="constitution-emoji">{{currentConstitution.emoji}}</text>
       <text class="constitution-name">{{currentConstitution.name}}</text>
@@ -73,10 +101,11 @@
     <text class="constitution-principle">{{currentConstitution.principle}}</text>
   </view>
 
+  <!-- 九种体质（未测评） -->
   <view class="card" wx:else>
-    <text class="card-title">🧬 九种体质</text>
+    <view class="card-title">🧬 九种体质</view>
     <scroll-view scroll-x class="chip-scroll">
-      <view class="chip" wx:for="{{constitutions}}" wx:key="id" style="border-color:{{item.color}}">
+      <view class="chip" wx:for="{{constitutions}}" wx:key="id" style="border-color:{{item.color}}" bindtap="showConstitution" data-id="{{item.id}}">
         <text>{{item.emoji}} {{item.name}}</text>
       </view>
     </scroll-view>
@@ -85,6 +114,7 @@
 
   <view class="disclaimer">本测评结果仅供参考，不构成医疗诊断建议。</view>
 
+  <!-- 诗词弹窗 -->
   <view class="poetry-modal" wx:if="{{showPoetryModal}}" bindtap="hidePoetryModal">
     <view class="modal-content" catchtap="preventBubble">
       <view class="modal-header">
@@ -109,6 +139,63 @@
       </view>
       <view class="modal-footer">
         <text class="modal-btn" bindtap="hidePoetryModal">我知道了</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 食谱详情弹窗 -->
+  <view class="poetry-modal" wx:if="{{showRecipeModal}}" bindtap="hideRecipeModal">
+    <view class="modal-content" catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-title">🍲 {{currentRecipe.name}}</text>
+        <text class="modal-close">×</text>
+      </view>
+      <view class="modal-body">
+        <view class="recipe-ingredients">
+          <text class="recipe-section-title">食材清单</text>
+          <view class="recipe-item-list">
+            <text wx:for="{{currentRecipe.ingredients}}" wx:key="*this" class="recipe-item">• {{item}}</text>
+          </view>
+        </view>
+        <view class="modal-divider"></view>
+        <view class="recipe-steps">
+          <text class="recipe-section-title">做法步骤</text>
+          <view class="recipe-step-list">
+            <text wx:for="{{currentRecipe.steps}}" wx:key="*this" class="recipe-step">{{index + 1}}. {{item}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <text class="modal-btn" bindtap="hideRecipeModal">我知道了</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 体质详情弹窗 -->
+  <view class="poetry-modal" wx:if="{{showConstiModal}}" bindtap="hideConstiModal">
+    <view class="modal-content" catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-title">{{currentConsti.emoji}} {{currentConsti.name}}</text>
+        <text class="modal-close">×</text>
+      </view>
+      <view class="modal-body">
+        <view class="consti-desc">{{currentConsti.description}}</view>
+        <view class="modal-divider"></view>
+        <view class="consti-section">
+          <text class="consti-section-title">特征</text>
+          <text class="consti-text">{{currentConsti.character}}</text>
+        </view>
+        <view class="consti-section">
+          <text class="consti-section-title">调养原则</text>
+          <text class="consti-text">{{currentConsti.principle}}</text>
+        </view>
+        <view class="consti-section">
+          <text class="consti-section-title">宜食</text>
+          <text class="consti-text">{{currentConsti.suitable.slice(0,6).join('、')}}...</text>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <text class="modal-btn" bindtap="hideConstiModal">我知道了</text>
       </view>
     </view>
   </view>
