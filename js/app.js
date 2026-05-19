@@ -424,6 +424,7 @@ function doCheckIn() {
 
 function renderSolarTerm() {
   const container = document.getElementById('solarTermSection')
+  if (!container) { console.error('solarTermSection not found'); return; }
   const term = getCurrentSolarTerm()
   console.log('renderSolarTerm - term:', term)
   if (!term) { container.innerHTML = ''; return }
@@ -462,11 +463,17 @@ function renderPoetry() {
   console.log('renderPoetry - poetry:', currentPoetry ? currentPoetry.poem.substring(0, 20) : 'undefined')
   if (!currentPoetry) return
   const section = document.getElementById('poetrySection')
-  if (!section) return
+  const solarName = document.getElementById('poetrySolarName')
+  const poetryText = document.getElementById('poetryText')
+  const poetryAuthor = document.getElementById('poetryAuthor')
+  if (!section || !solarName || !poetryText || !poetryAuthor) {
+    console.error('Poetry elements not found:', {section, solarName, poetryText, poetryAuthor})
+    return
+  }
   section.style.display = 'block'
-  document.getElementById('poetrySolarName').textContent = term.name
-  document.getElementById('poetryText').textContent = currentPoetry.poem
-  document.getElementById('poetryAuthor').textContent = currentPoetry.author
+  solarName.textContent = term.name
+  poetryText.textContent = currentPoetry.poem
+  poetryAuthor.textContent = currentPoetry.author
 }
 
 function showPoetryModal() {
