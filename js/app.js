@@ -425,6 +425,7 @@ function doCheckIn() {
 function renderSolarTerm() {
   const container = document.getElementById('solarTermSection')
   const term = getCurrentSolarTerm()
+  console.log('renderSolarTerm - term:', term)
   if (!term) { container.innerHTML = ''; return }
   container.innerHTML = `
     <div class="solar-term-card">
@@ -455,8 +456,10 @@ function getPoetryForToday(solarTermName) {
 
 function renderPoetry() {
   const term = getCurrentSolarTerm()
+  console.log('renderPoetry - term:', term ? term.name : 'undefined')
   if (!term) return
   currentPoetry = getPoetryForToday(term.name)
+  console.log('renderPoetry - poetry:', currentPoetry ? currentPoetry.poem.substring(0, 20) : 'undefined')
   if (!currentPoetry) return
   const section = document.getElementById('poetrySection')
   if (!section) return
