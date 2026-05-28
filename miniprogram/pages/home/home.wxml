@@ -4,7 +4,9 @@
   <view class="page-top-ornament">━━━  ❀  ━━━</view>
   <!-- Hero -->
   <view class="hero">
-    <view class="brand-logo">🌿</view>
+    <view class="brand-logo">
+      <text class="brand-logo-char">馋</text>
+    </view>
     <text class="hero-slogan">忌馋识度 · 养身有约</text>
     <view class="hero-body">
       <text class="hero-avatar">{{heroAvatar}}</text>
@@ -51,7 +53,7 @@
   <!-- 体质+体脂秤 组合健康报告卡片 -->
   <view class="card health-card" wx:if="{{showHealthSummary}}" bindtap="goScaleReport">
     <view class="health-header">
-      <text class="card-title">📊 我的健康报告</text>
+      <text class="card-title">我的健康报告</text>
       <text class="card-link">详情 ›</text>
     </view>
     <view class="health-body">
@@ -84,7 +86,7 @@
   <!-- 打卡 → 中药故事 -->
   <view class="card checkin-card {{checkedIn ? 'checked' : ''}}" bindtap="onCheckinTap">
     <view class="checkin-header">
-      <text class="card-title">{{checkedIn ? '✅ 已打卡' : '📅 每日推送'}}</text>
+      <text class="card-title">{{checkedIn ? '已打卡' : '每日推送'}}</text>
       <view class="checkin-badges">
         <text class="streak-tag" wx:if="{{points>0}}">💎 {{points}}分</text>
         <text class="streak-tag" wx:if="{{streak>0}}">🔥 {{streak}}天</text>
@@ -97,7 +99,7 @@
 
   <!-- 九种体质（未测评时） -->
   <view class="card consti-card" wx:if="{{!hasResult}}">
-    <text class="card-title">🧬 认识体质</text>
+    <text class="card-title">认识体质</text>
     <view class="consti-intro">中医将人体体质分为九种，了解自己的体质才能科学养生</view>
     <scroll-view scroll-x class="chip-scroll">
       <view class="chip" wx:for="{{constitutions}}" wx:key="id"
@@ -112,7 +114,7 @@
   <!-- 当前体质（已测评时） -->
   <view class="card consti-result-card" wx:if="{{hasResult}}" bindtap="showConstitutionDetail" data-id="{{currentConstitution.id}}">
     <view class="consti-result-header">
-      <text class="card-title">🧬 我的体质</text>
+      <text class="card-title">我的体质</text>
       <text class="card-link">详情 ›</text>
     </view>
     <view class="consti-result-body">
@@ -126,7 +128,7 @@
 
   <!-- 时令食材推荐 -->
   <view class="card seasonal-card">
-    <text class="card-title">🌿 时令推荐食材</text>
+    <text class="card-title">时令推荐食材</text>
     <view class="seasonal-intro">{{climateLabel}} · {{solarTerm.name}}前后宜食</view>
     <scroll-view scroll-x class="seasonal-scroll">
       <view class="seasonal-chip" wx:for="{{seasonalFoods}}" wx:key="*this">{{item}}</view>
@@ -150,49 +152,49 @@
         <view class="modal-divider"></view>
         <!-- 体质特征 -->
         <view class="consti-detail">
-          <text class="modal-section-title">🔍 体质特征</text>
+          <text class="modal-section-title">体质特征</text>
           <text class="modal-section-text">{{currentConsti.character}}</text>
         </view>
         <!-- 调养原则 -->
         <view class="consti-detail">
-          <text class="modal-section-title">📜 调养原则</text>
+          <text class="modal-section-title">调养原则</text>
           <text class="modal-section-text">{{currentConsti.principleDetail || currentConsti.principle}}</text>
         </view>
         <!-- 经典依据 -->
         <view class="consti-detail" wx:if="{{currentConsti.evidence}}">
-          <text class="modal-section-title">📖 经典依据</text>
+          <text class="modal-section-title">经典依据</text>
           <text class="modal-section-text">{{currentConsti.evidence}}</text>
         </view>
         <view class="modal-divider"></view>
         <!-- 养生建议 -->
         <view class="consti-detail">
-          <text class="modal-section-title">🌿 养生建议</text>
+          <text class="modal-section-title">养生建议</text>
           <text class="modal-section-text">{{currentConsti.healthAdvice}}</text>
         </view>
         <!-- 季节提示 -->
         <view class="consti-detail" wx:if="{{currentConsti.seasonTip}}">
-          <text class="modal-section-title">🍂 季节提示</text>
+          <text class="modal-section-title">季节提示</text>
           <text class="modal-section-text">{{currentConsti.seasonTip}}</text>
         </view>
         <view class="modal-divider"></view>
         <!-- 宜食 -->
         <view class="consti-detail">
-          <text class="modal-section-title">✅ 宜食</text>
+          <text class="modal-section-title">宜食</text>
           <text class="modal-section-text">{{currentConsti.suitable.join('、')}}</text>
         </view>
         <!-- 慎食 -->
         <view class="consti-detail">
-          <text class="modal-section-title">⚠️ 慎食</text>
+          <text class="modal-section-title">慎食</text>
           <text class="modal-section-text">{{currentConsti.avoid.join('、')}}</text>
         </view>
         <!-- 推荐食谱 -->
         <view class="consti-detail" wx:if="{{currentConsti.recommendFoods && currentConsti.recommendFoods.length}}">
-          <text class="modal-section-title">🍽️ 推荐食谱</text>
+          <text class="modal-section-title">推荐食谱</text>
           <text class="modal-section-text">{{currentConsti.recommendFoods.join('、')}}</text>
         </view>
         <!-- 运动建议 -->
         <view class="consti-detail" wx:if="{{currentConsti.fitnessAdvice}}">
-          <text class="modal-section-title">🏃 运动建议</text>
+          <text class="modal-section-title">运动建议</text>
           <text class="modal-section-text">{{currentConsti.fitnessAdvice}}</text>
         </view>
       </view>
@@ -206,7 +208,7 @@
   <view class="modal" wx:if="{{showGuideModal}}" catchtap="hideGuideModal">
     <view class="modal-content" catchtap>
       <view class="modal-header">
-        <text class="modal-title">🌿 欢迎开启养生之旅</text>
+        <text class="modal-title">欢迎开启养生之旅</text>
         <text class="modal-close" catchtap="hideGuideModal">×</text>
       </view>
       <view class="modal-body">
@@ -242,17 +244,17 @@
         </view>
         <view class="modal-divider"></view>
         <view class="story-section">
-          <text class="modal-section-title">📜 故事</text>
+          <text class="modal-section-title">故事</text>
           <text class="story-text">{{currentStory.story}}</text>
         </view>
         <view class="modal-divider" wx:if="{{currentStory.lesson}}"></view>
         <view class="story-section" wx:if="{{currentStory.lesson}}">
-          <text class="modal-section-title">🌿 养生启示</text>
+          <text class="modal-section-title">养生启示</text>
           <text class="story-text">{{currentStory.lesson}}</text>
         </view>
         <view class="modal-divider" wx:if="{{currentStory.source}}"></view>
         <view class="story-source" wx:if="{{currentStory.source}}">
-          <text class="source-text">📚 出处：{{currentStory.source}}</text>
+          <text class="source-text">出处：{{currentStory.source}}</text>
         </view>
       </view>
       <view class="modal-footer">
@@ -275,12 +277,12 @@
         </view>
         <view class="modal-divider"></view>
         <view class="modal-story-section">
-          <text class="modal-section-title">📖 诗词背后的故事</text>
+          <text class="modal-section-title">诗词背后的故事</text>
           <text class="story-text">{{poetry.story}}</text>
         </view>
         <view class="modal-divider"></view>
         <view class="modal-tip-section">
-          <text class="modal-section-title">🌿 养生提示</text>
+          <text class="modal-section-title">养生提示</text>
           <text class="story-text">{{poetry.tip}}</text>
         </view>
       </view>
@@ -294,7 +296,7 @@
   <view class="modal" wx:if="{{showShareRewardModal}}" catchtap="hideShareRewardModal">
     <view class="modal-content" catchtap>
       <view class="modal-header">
-        <text class="modal-title">🎉 恭喜获得徽章</text>
+        <text class="modal-title">恭喜获得徽章</text>
         <text class="modal-close" catchtap="hideShareRewardModal">×</text>
       </view>
       <view class="modal-body">
