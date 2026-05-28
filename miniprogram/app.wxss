@@ -1,27 +1,33 @@
 page {
-  /* Web 同步配色 - 鼠尾草绿暗色主题 */
-  --bg: #0E1210;
-  --bg-card: #161C18;
-  --bg-card-hover: #1E2822;
-  --surface: #1A221E;
-  --primary: #8BAA7A;
-  --primary-dark: #6B8F5E;
-  --primary-glow: rgba(139, 170, 122, 0.2);
-  --accent: #A8C99A;
-  --accent-glow: rgba(168, 201, 154, 0.25);
-  --warm: #C4A97D;
-  --warm-glow: rgba(196, 169, 125, 0.15);
-  --jade: #5A8A72;
-  --text: #E8E4DC;
-  --text-secondary: #A8A090;
-  --text-muted: #6B6558;
-  --border: rgba(139, 170, 122, 0.1);
-  --border-light: rgba(139, 170, 122, 0.18);
-  --danger: #D45A5A;
-  --warning: #C4A043;
-  --radius: 16rpx;
-  --radius-sm: 10rpx;
-  --shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.4);
+  /* 亮色主题（默认） */
+  --bg: #FCFAF7;
+  --bg-card: #F7F4EF;
+  --bg-card-hover: #F0ECE5;
+  --surface: #F3F0EA;
+  --primary: #7B9A6E;
+  --primary-dark: #5F7A54;
+  --primary-glow: rgba(123, 154, 110, 0.15);
+  --accent: #98B88A;
+  --accent-glow: rgba(152, 184, 138, 0.2);
+  --warm: #C49A6C;
+  --warm-glow: rgba(196, 154, 108, 0.1);
+  --vermilion: #C45A4A;
+  --vermilion-glow: rgba(196, 90, 74, 0.12);
+  --jade: #6A9A7A;
+  --text: #3A3530;
+  --text-secondary: #6B6058;
+  --text-muted: #9A8E82;
+  --border: rgba(0, 0, 0, 0.06);
+  --border-light: rgba(0, 0, 0, 0.09);
+  --danger: #C06060;
+  --warning: #B8984A;
+  --radius: 20rpx;
+  --radius-sm: 12rpx;
+  --radius-lg: 28rpx;
+  --shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 2rpx 16rpx rgba(0, 0, 0, 0.05);
+  --hero-bg: linear-gradient(135deg, #F2EEE7 0%, #EDE8E0 60%, #EBE5DC 100%);
+  --greeting-bg: rgba(123, 154, 110, 0.08);
 
   background: var(--bg);
   color: var(--text);
@@ -30,14 +36,76 @@ page {
   min-height: 100vh;
 }
 
+/* 暗色主题 */
+page.theme-dark,
+.theme-dark {
+  --bg: #1C1E18;
+  --bg-card: #242720;
+  --bg-card-hover: #2C2F28;
+  --surface: #282B24;
+  --primary: #9BBA8A;
+  --primary-dark: #7B9868;
+  --primary-glow: rgba(155, 186, 138, 0.15);
+  --accent: #A8C89A;
+  --accent-glow: rgba(168, 200, 154, 0.18);
+  --warm: #C9A87A;
+  --warm-glow: rgba(201, 168, 122, 0.12);
+  --vermilion: #D47060;
+  --vermilion-glow: rgba(212, 112, 96, 0.12);
+  --jade: #6A9A7A;
+  --text: #E2DED8;
+  --text-secondary: #A0988A;
+  --text-muted: #706A60;
+  --border: rgba(155, 186, 138, 0.08);
+  --border-light: rgba(155, 186, 138, 0.14);
+  --danger: #D06060;
+  --warning: #C4A050;
+  --radius: 20rpx;
+  --radius-sm: 12rpx;
+  --radius-lg: 28rpx;
+  --shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.3);
+  --shadow-card: 0 2rpx 16rpx rgba(0, 0, 0, 0.35);
+  --hero-bg: linear-gradient(135deg, #22251E 0%, #242820 60%, #20231C 100%);
+  --greeting-bg: rgba(152, 184, 138, 0.08);
+}
+
+/* ========== 传统装饰 ========== */
+.ink-divider {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin: 8rpx 0 24rpx;
+  color: var(--text-muted);
+  font-size: 22rpx;
+  opacity: 0.5;
+}
+.ink-divider::before,
+.ink-divider::after {
+  content: '';
+  flex: 1;
+  height: 1rpx;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+/* 传统圈点分隔 */
+.ink-dot {
+  width: 6rpx;
+  height: 6rpx;
+  border-radius: 50%;
+  background: var(--text-muted);
+  opacity: 0.3;
+  flex-shrink: 0;
+}
+
 /* ========== 通用卡片 ========== */
 .card {
   background: var(--bg-card);
   border-radius: var(--radius);
   border: 1rpx solid var(--border);
-  padding: 28rpx;
-  margin-bottom: 20rpx;
-  box-shadow: var(--shadow);
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s;
 }
 .card-title {
   font-size: 28rpx;
@@ -349,4 +417,200 @@ page {
   color: var(--text-muted);
   padding: 30rpx 20rpx;
   margin-top: 20rpx;
+}
+
+
+
+/* 卡片可选古风装饰 */
+.card-classical {
+  position: relative;
+  overflow: hidden;
+}
+.card-classical::before {
+  content: '';
+  display: block;
+  height: 2rpx;
+  margin: -32rpx -32rpx 24rpx -32rpx;
+  background: linear-gradient(90deg,
+    transparent 2%,
+    rgba(196,154,108,0.18) 8%,
+    rgba(196,154,108,0.18) 22%,
+    transparent 28%,
+    transparent 72%,
+    rgba(196,154,108,0.18) 78%,
+    rgba(196,154,108,0.18) 92%,
+    transparent 98%
+  );
+}
+.card-classical::after {
+  content: '❦';
+  position: absolute;
+  bottom: 16rpx;
+  right: 20rpx;
+  font-size: 20rpx;
+  color: var(--warm);
+  opacity: 0.15;
+  line-height: 1;
+}
+
+/* 古风题头装饰条 */
+.classical-header {
+  text-align: center;
+  padding: 24rpx 0 16rpx;
+  position: relative;
+}
+.classical-header::before,
+.classical-header::after {
+  content: '━━━';
+  letter-spacing: 6rpx;
+  color: var(--warm);
+  opacity: 0.2;
+  font-size: 20rpx;
+  display: block;
+}
+.classical-header::before { margin-bottom: 8rpx; }
+.classical-header::after { margin-top: 8rpx; }
+.classical-header .ch-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--text);
+  font-family: KaiTi, STKaiti, serif;
+  letter-spacing: 4rpx;
+}
+.classical-header .ch-sub {
+  font-size: 22rpx;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 6rpx;
+  letter-spacing: 2rpx;
+}
+
+/* 水墨分隔符 */
+.ink-divider-lg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  margin: 8rpx 0 24rpx;
+}
+.ink-divider-lg::before,
+.ink-divider-lg::after {
+  content: '';
+  flex: 1;
+  height: 1rpx;
+  background: linear-gradient(90deg, transparent, rgba(196,154,108,0.2), transparent);
+}
+.ink-divider-lg .divider-icon {
+  font-size: 18rpx;
+  color: var(--warm);
+  opacity: 0.3;
+}
+
+/* 页面顶部古风装饰 */
+.page-top-ornament {
+  text-align: center;
+  padding: 12rpx 0 4rpx;
+  color: var(--warm);
+  opacity: 0.12;
+  font-size: 20rpx;
+  letter-spacing: 12rpx;
+}
+
+/* 传统回纹边框装饰 */
+.border-classical {
+  position: relative;
+}
+.border-classical::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4rpx;
+  background: linear-gradient(90deg,
+    transparent 2%, var(--warm) 2%, var(--warm) 6%,
+    transparent 6%, transparent 10%, var(--warm) 10%, var(--warm) 14%,
+    transparent 14%, transparent 86%, var(--warm) 86%, var(--warm) 90%,
+    transparent 90%, transparent 94%, var(--warm) 94%, var(--warm) 98%,
+    transparent 98%
+  );
+  opacity: 0.08;
+}
+
+/* ========== 朱砂批注左边框 ========== */
+.card-annotated {
+  position: relative;
+  border-left: 6rpx solid var(--vermilion) !important;
+  background: linear-gradient(90deg, rgba(196, 90, 74, 0.03) 0%, transparent 10%);
+}
+.card-annotated .card-title {
+  color: var(--vermilion);
+}
+
+/* ========== 印章装饰 ========== */
+.seal-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48rpx; height: 48rpx;
+  border: 2rpx solid var(--vermilion);
+  border-radius: 8rpx;
+  color: var(--vermilion);
+  font-size: 24rpx;
+  font-weight: 700;
+  font-family: KaiTi, STKaiti, serif;
+  transform: rotate(-3deg);
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
+/* ========== 水墨渐变分隔线 ========== */
+.ink-divider-wash {
+  height: 2rpx;
+  margin: 24rpx 0;
+  background: linear-gradient(90deg,
+    transparent, rgba(0,0,0,0.03) 15%,
+    rgba(0,0,0,0.08) 50%,
+    rgba(0,0,0,0.03) 85%, transparent
+  );
+}
+
+/* ========== 古卷质感卡片 ========== */
+.card-scroll {
+  background:
+    linear-gradient(180deg, rgba(196,169,125,0.04) 0%, transparent 40%),
+    var(--bg-card);
+  border: 1rpx solid var(--border);
+  border-radius: var(--radius);
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: var(--shadow-card);
+}
+
+/* ========== 品牌LOGO圆形标识 ========== */
+.brand-logo {
+  width: 96rpx; height: 96rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--jade));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44rpx;
+  color: #fff;
+  box-shadow: 0 6rpx 24rpx var(--primary-glow);
+  flex-shrink: 0;
+}
+.brand-logo-sm {
+  width: 64rpx; height: 64rpx;
+  font-size: 30rpx;
+}
+
+/* ========== 标签徽章 ========== */
+.tag-seal {
+  font-size: 18rpx;
+  color: var(--vermilion);
+  background: var(--vermilion-glow);
+  border: 1rpx solid rgba(196, 90, 74, 0.25);
+  border-radius: 6rpx;
+  padding: 2rpx 10rpx;
+  font-family: KaiTi, STKaiti, serif;
+  letter-spacing: 2rpx;
 }

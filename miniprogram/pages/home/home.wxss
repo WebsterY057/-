@@ -1,118 +1,485 @@
-/* Home 页面特定样式 - 精简版 */
-
-/* 每日推荐食谱 */
-.daily-food-card {
-  border-left: 6rpx solid var(--primary);
-}
-.daily-food-main {
+/* ========== 通用卡片（使用全局 .card 基础样式） ========== */
+.card-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12rpx;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12rpx;
-}
-.daily-food-name {
-  font-size: 44rpx;
-  font-weight: 700;
-  color: var(--primary);
-}
-.daily-food-arrow {
-  font-size: 36rpx;
-  color: var(--text-muted);
-}
-.daily-food-reason {
-  font-size: 24rpx;
-  color: var(--text-secondary);
-  display: block;
-  margin-top: 8rpx;
-}
-.daily-food-tap-hint {
-  font-size: 22rpx;
-  color: var(--accent);
-  display: block;
-  margin-top: 8rpx;
-}
-
-/* 打卡提示 */
-.checkin-tip {
-  font-size: 24rpx;
-  color: var(--accent);
-  background: rgba(168, 201, 154, 0.08);
-  border: 1rpx solid rgba(168, 201, 154, 0.2);
-  border-radius: var(--radius-sm);
-  padding: 20rpx 28rpx;
-  margin-bottom: 20rpx;
-  line-height: 1.6;
-}
-
-/* 九种体质 */
-.chip {
-  display: inline-block;
-  border: 2rpx solid var(--border);
-  border-radius: 30rpx;
-  padding: 10rpx 24rpx;
-  margin-right: 16rpx;
-  font-size: 24rpx;
-  background: var(--surface);
-  color: var(--text-secondary);
-}
-.card-sub {
-  font-size: 24rpx;
-  color: var(--text-muted);
-  margin-top: 16rpx;
-  display: block;
-}
-
-/* 体质详情弹窗 */
-.consti-desc {
-  font-size: 28rpx;
-  color: var(--text);
-  line-height: 1.6;
-  margin-bottom: 16rpx;
-}
-.consti-section {
-  margin-top: 20rpx;
-}
-.consti-section-title {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: var(--primary);
-  display: block;
-  margin-bottom: 8rpx;
-}
-.consti-text {
-  font-size: 26rpx;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  display: block;
-}
-
-/* 食谱详情弹窗 */
-.recipe-section-title {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: var(--primary);
-  display: block;
-  margin-bottom: 16rpx;
-}
-.recipe-item-list {
-  display: flex;
-  flex-wrap: wrap;
   gap: 8rpx;
 }
-.recipe-item {
+.card-link {
   font-size: 26rpx;
-  color: var(--text-secondary);
-  line-height: 1.6;
+  color: var(--accent);
+  margin-top: 14rpx;
   display: block;
 }
-.recipe-step-list {
+.card-sub {
+  font-size:  24rpx;
+  color:      var(--text-muted);
+  margin-top: 16rpx;
+  display:    block;
+}
+
+/* ========== Hero ========== */
+.hero {
+  background: 
+    radial-gradient(ellipse 60% 50% at 50% 30%, rgba(123,154,110,0.05) 0%, transparent 60%),
+    linear-gradient(175deg, #F7F3ED 0%, #F2EDE4 40%, #EFE9DD 100%);
+  border-radius: 32rpx;
+  padding: 36rpx 40rpx 28rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.03);
+  position: relative;
+  overflow: hidden;
+}
+/* 右下角印章装饰 */
+.hero::after {
+  content: '养';
+  position: absolute;
+  bottom: 14rpx;
+  right: 20rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--vermilion);
+  font-family: KaiTi, STKaiti, serif;
+  opacity: 0.12;
+  line-height: 1;
+  transform: rotate(5deg);
+}
+
+/* Brand logo + seal */
+.hero-brand {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  margin-bottom: 12rpx;
+}
+.brand-seal {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--vermilion);
+  font-family: KaiTi, STKaiti, serif;
+  letter-spacing: 6rpx;
+  border: 2rpx solid var(--vermilion);
+  border-radius: 8rpx;
+  padding: 4rpx 16rpx;
+  transform: rotate(-2deg);
+  opacity: 0.85;
+}
+
+/* Slogan */
+.hero-slogan {
+  display: block;
+  text-align: center;
+  font-size: 28rpx;
+  font-weight: 400;
+  color: var(--text-muted);
+  font-family: KaiTi, STKaiti, serif;
+  letter-spacing: 4rpx;
+  margin-bottom: 20rpx;
+  opacity: 0.7;
+}
+
+/* 头像+信息 — 左右结构，整体居中 */
+.hero-body {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  justify-content: center;
+}
+.hero-avatar {
+  font-size: 36rpx;
+  width: 64rpx; height: 64rpx;
+  border-radius: 50%;
+  background: rgba(123,154,110,0.06);
+  border: 1.5rpx solid rgba(123,154,110,0.18);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.hero-info {
+  min-width: 0;
+}
+.hero-greeting {
+  font-size: 32rpx;
+  font-weight: 400;
+  color: var(--text);
+  display: block;
+  line-height: 1.4;
+  margin-bottom: 6rpx;
+}
+.hero-sub {
+  font-size: 24rpx;
+  color: var(--text-muted);
+  display: block;
+  line-height: 1.6;
+}
+.hero-sub-dim { opacity: 0.6; }
+
+/* 诗词条 */
+.poem-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 12rpx;
+  padding: 18rpx 0;
+  margin-bottom: 12rpx;
+  font-family: KaiTi, STKaiti, serif;
+}
+.poem-line {
+  font-size: 26rpx;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+.poem-author {
+  font-size: 24rpx;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+/* ========== 快捷引导条 ========== */
+.quick-bar {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1rpx solid var(--border);
+  border-radius: var(--radius);
+  padding: 24rpx 0;
+  margin-bottom: 24rpx;
+  box-shadow: var(--shadow-card);
+}
+.quick-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8rpx; }
+.quick-icon { font-size: 34rpx; }
+.quick-label { font-size: 22rpx; color: var(--text-secondary); font-weight: 400; }
+.quick-divider { width: 1rpx; height: 44rpx; background: var(--border); }
+
+/* ========== 每日推荐食谱 ========== */
+.recipe-card { border-left: 3rpx solid var(--warm); }
+.recipe-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+.recipe-name {
+  font-size: 28rpx; font-weight: 600; color: var(--text);
+  display: block; margin-top: 6rpx;
+}
+.recipe-arrow { font-size: 36rpx; color: var(--text-muted); flex-shrink: 0; }
+.recipe-reason { font-size: 22rpx; color: var(--text-secondary); display: block; margin-bottom: 6rpx; }
+.recipe-hint { font-size: 24rpx; color: var(--warm); display: block; }
+
+/* ========== 打卡卡片 ========== */
+.checkin-card { border-left: 3rpx solid var(--border); }
+.checkin-card.checked { border-left-color: var(--warm); background: rgba(196, 169, 125, 0.04); }
+.checkin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8rpx; }
+.checkin-badges{display:flex;gap:8rpx;align-items:center}
+.streak-tag {
+  font-size: 20rpx; color: var(--warm); background: rgba(196, 154, 108, 0.1);
+  padding: 4rpx 16rpx; border-radius: 20rpx; font-weight: 500;
+}
+.checkin-main { font-size: 24rpx; color: var(--text-secondary); line-height: 1.6; display: block; }
+
+/* ========== 当前体质结果 ========== */
+.consti-result-card { border-left: 3rpx solid var(--primary); }
+.consti-result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14rpx; }
+.consti-result-body { display: flex; align-items: center; gap: 20rpx; }
+.consti-big-emoji { font-size: 56rpx; flex-shrink: 0; }
+.consti-result-info { flex: 1; min-width: 0; }
+.consti-result-name { font-size: 30rpx; font-weight: 600; color: var(--text); display: block; margin-bottom: 6rpx; }
+.consti-result-principle { font-size: 24rpx; color: var(--text-secondary); display: block; line-height: 1.5; }
+
+/* ========== 弹窗 ========== */
+.modal {
+  position:   fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.75);
+  z-index:   1000;
+  display:    flex;
+  align-items: center;
+  justify-content: center;
+  padding:    40rpx;
+}
+.modal-content {
+  background:     var(--bg-card);
+  border-radius: var(--radius-lg);
+  width:         100%;
+  max-height:    85vh;
+  overflow:      hidden;
+  display:       flex;
+  flex-direction: column;
+  border:        1rpx solid rgba(168, 201, 154, 0.15);
+}
+.modal-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         28rpx 32rpx;
+  border-bottom:   1rpx solid var(--border);
+  flex-shrink:    0;
+}
+.modal-title {
+  font-size:   32rpx;
+  font-weight: 700;
+  color:       var(--accent);
+}
+.modal-close {
+  font-size:  52rpx;
+  color:      var(--text-muted);
+  line-height: 1;
+}
+.modal-body {
+  flex:       1;
+  overflow-y: auto;
+  padding:    28rpx 32rpx;
+}
+.modal-footer {
+  padding:     24rpx 32rpx;
+  border-top:  1rpx solid var(--border);
+  text-align:  center;
+  flex-shrink: 0;
+}
+.modal-btn {
+  display:       inline-block;
+  background:    var(--primary);
+  color:        #fff;
+  border-radius: var(--radius);
+  padding:       20rpx 56rpx;
+  font-size:     28rpx;
+}
+
+.modal-poem {
+  background:   rgba(168, 201, 154, 0.06);
+  border-radius: var(--radius);
+  padding:      28rpx;
+  border:       1rpx solid rgba(168, 201, 154, 0.1);
+}
+.modal-poem-text {
+  font-size:      30rpx;
+  line-height:     1.9;
+  color:           var(--text);
+  display:         block;
+  font-family:     KaiTi, STKaiti, serif;
+  letter-spacing:   2rpx;
+}
+.modal-poem-author {
+  font-size:   24rpx;
+  color:       var(--text-muted);
+  margin-top:  14rpx;
+  display:     block;
+  text-align:  right;
+}
+.modal-divider {
+  height:       1rpx;
+  background:   var(--border);
+  margin:       24rpx 0;
+}
+.modal-section-title {
+  font-size:   28rpx;
+  font-weight: 600;
+  color:       var(--accent);
+  display:     block;
+  margin-bottom: 12rpx;
+}
+.modal-section-text {
+  font-size:   26rpx;
+  color:       var(--text-secondary);
+  line-height: 1.7;
+  display:     block;
+}
+.modal-story {
+  margin-bottom: 16rpx;
+}
+.modal-tip-box {
+  margin-top: 8rpx;
+}
+.modal-tip-text {
+  font-size:   26rpx;
+  color:       var(--warm);
+  line-height: 1.7;
+  display:     block;
+}
+
+/* 故事弹窗 */
+.story-hero{
+  background:rgba(168,201,154,0.06);
+  border-radius:var(--radius);
+  padding:24rpx;
+  border:1rpx solid rgba(168,201,154,0.1);
+  margin-bottom:8rpx
+}
+.story-herb{font-size:30rpx;font-weight:700;color:var(--accent);display:block;margin-bottom:8rpx}
+.story-summary{font-size:26rpx;color:var(--text-secondary);line-height:1.6;display:block}
+.story-section{margin-bottom:8rpx}
+.story-text{font-size:26rpx;color:var(--text-secondary);line-height:1.8;display:block}
+.story-source{padding:8rpx 0}
+.source-text{font-size:24rpx;color:var(--text-muted);font-style:italic}
+
+/* 食谱弹窗 */
+.recipe-detail-section {
+  margin-bottom: 8rpx;
+}
+.recipe-items {
+  display:        flex;
+  flex-wrap:     wrap;
+  gap:            8rpx;
+}
+.recipe-item {
+  font-size:   26rpx;
+  color:       var(--text-secondary);
+  line-height: 1.6;
+  display:     block;
+  width:       100%;
+}
+.recipe-steps {
+  display:        flex;
+  flex-direction: column;
+  gap:            14rpx;
 }
 .recipe-step {
-  font-size: 26rpx;
-  color: var(--text-secondary);
+  font-size:   26rpx;
+  color:       var(--text-secondary);
   line-height: 1.6;
+  display:     block;
+}
+
+/* 体质弹窗 */
+.consti-detail {
+  margin-top: 20rpx;
+}
+
+/* 引导弹窗 */
+.guide-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16rpx;
+}
+.guide-emoji {
+  font-size: 80rpx;
+  margin-bottom: 8rpx;
+}
+.guide-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--text);
   display: block;
 }
+.guide-desc {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  display: block;
+  margin-top: 8rpx;
+}
+.guide-steps {
+  background: rgba(168, 201, 154, 0.06);
+  border: 1rpx solid rgba(168, 201, 154, 0.12);
+  border-radius: var(--radius);
+  padding: 20rpx 28rpx;
+  margin-top: 12rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+.guide-step {
+  font-size: 26rpx;
+  color: var(--accent);
+  display: block;
+}
+.modal-btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 20rpx 56rpx;
+  font-size: 28rpx;
+  display: inline-block;
+  margin-bottom: 12rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+/* ========== 页面容器 ========== */
+.page-wrap {
+  width:  100%;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+}
+.container {
+  width:  100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 20rpx 30rpx 30rpx;
+}
+
+/* ========== 免责声明 ========== */
+.disclaimer {
+  font-size:   22rpx;
+  color:       var(--text-muted);
+  text-align:  center;
+  margin:      20rpx 0 50rpx;
+}
+
+/* ========== 时令食材 ========== */
+.seasonal-card {
+  border-left: 4rpx solid var(--primary);
+}
+.seasonal-intro {
+  font-size:   26rpx;
+  color:       var(--text-secondary);
+  margin-bottom: 18rpx;
+}
+.seasonal-scroll {
+  white-space: nowrap;
+  margin-bottom: 12rpx;
+}
+.seasonal-tip {
+  font-size:   22rpx;
+  color:       var(--text-muted);
+  line-height: 1.6;
+  display:     block;
+  margin-bottom: 10rpx;
+}
+
+/* 组合健康报告卡片 */
+.health-card{border-left:4rpx solid var(--primary);margin:0 0 24rpx}
+.health-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16rpx}
+.health-body{display:flex;align-items:center;gap:20rpx;margin-bottom:16rpx}
+.health-left{flex:1;min-width:0}
+.health-constitution{font-size:28rpx;font-weight:700;color:var(--text);display:block;margin-bottom:4rpx}
+.health-principle{font-size:22rpx;color:var(--text-muted);display:block;line-height:1.4}
+.health-divider{width:1rpx;height:70rpx;background:var(--border);flex-shrink:0}
+.health-right{display:flex;gap:20rpx;flex-shrink:0}
+.health-metric{text-align:center}
+.hm-label{font-size:20rpx;color:var(--text-muted);display:block;margin-bottom:4rpx}
+.hm-value{font-size:30rpx;font-weight:700;color:var(--text);display:block}
+.hm-unit{font-size:18rpx;color:var(--text-muted);font-weight:400}
+.health-footer{display:flex;align-items:center;justify-content:space-between}
+.health-status{font-size:24rpx;font-weight:600}
+.health-time{font-size:20rpx;color:var(--text-muted)}
+.seasonal-chip {
+  display:       inline-block;
+  background:    var(--accent-glow);
+  color:         var(--accent);
+  border:        1rpx solid rgba(168, 201, 154, 0.3);
+  border-radius: 24rpx;
+  padding:       12rpx 24rpx;
+  margin-right:  14rpx;
+  font-size:     26rpx;
+}
+
+/* ========== 节气诗词（无框，点击弹窗） ========== */
+.poetry-line{text-align:center;padding:16rpx 20rpx 8rpx;cursor:pointer}
+.poetry-line-text{font-size:26rpx;color:var(--text);line-height:1.5;font-family:KaiTi,STKaiti,serif;opacity:0.75}
+
+/* ========== 诗词弹窗 ========== */
+.modal-poem{padding:12rpx 0 8rpx;text-align:center}
+.modal-poem-text{font-size:28rpx;color:var(--text);line-height:1.8;display:block}
+.modal-poem-author{font-size:24rpx;color:var(--text-muted);display:block;margin-top:10rpx}
+.modal-story-section,.modal-tip-section{padding:8rpx 0}

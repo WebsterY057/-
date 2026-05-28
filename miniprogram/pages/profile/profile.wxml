@@ -1,20 +1,93 @@
-<view class="page">
+<view class="page {{_pageClass}}">
+<privacy-popup id="privacy-popup" />
+<view class="page-top-ornament">━━━  ❀  ━━━</view>
 
-  <view class="profile-header">
-    <view class="avatar">👤</view>
+  <view class="profile-header" bindtap="editProfile">
+    <image class="avatar-img" wx:if="{{userProfile.avatarUrl}}" src="{{userProfile.avatarUrl}}" mode="aspectFill" binderror="onAvatarError"></image>
+    <image class="avatar-img" wx:elif="{{wxAvatarUrl}}" src="{{wxAvatarUrl}}" mode="aspectFill" binderror="onWxAvatarError"></image>
+    <view class="avatar" wx:else>👤</view>
     <view class="pinfo">
-      <text class="pname">AI体质食疗</text>
-      <text class="pstatus" wx:if="{{userBody}}">{{userBody.gender || '未设置'}} · {{userBody.age || '—'}}岁 · {{userBody.height || '—'}}cm · {{userBody.weight || '—'}}kg</text>
+      <text class="pname">{{userProfile.nickName || '馋识有约'}}</text>
+      <text class="pstatus" wx:if="{{userBody}}">{{userBody.displayGender}} · {{userBody.displayAge}} · {{userBody.displayHeight}} · {{userBody.displayWeight}}</text>
       <text class="pstatus" wx:else>请先完善身体数据</text>
+    </view>
+  </view>
+
+  <!-- 编辑资料弹窗 -->
+  <view class="edit-profile-modal" wx:if="{{showEditProfile}}">
+    <view class="edit-mask" catchtap="closeEditProfile"></view>
+    <view class="edit-panel">
+      <text class="edit-title">编辑资料</text>
+      <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+        <image class="edit-avatar" wx:if="{{editAvatar}}" src="{{editAvatar}}" mode="aspectFill"></image>
+        <view class="edit-avatar-placeholder" wx:else>👤</view>
+        <text class="avatar-hint">点击更换头像</text>
+      </button>
+      <input class="nickname-input" type="nickname" placeholder="请输入昵称" value="{{editNickName}}" bindinput="onNickInput" bindblur="onNickBlur" />
+      <view class="edit-actions">
+        <button class="btn-cancel" bindtap="closeEditProfile">取消</button>
+        <button class="btn-save" bindtap="saveProfile">保存</button>
+      </view>
     </view>
   </view>
 
   <view class="badge" wx:if="{{constitution}}" style="background:{{constitution.color}}20;border:2rpx solid {{constitution.color}}">
     <text class="bemoji">{{constitution.emoji}}</text>
     <view class="binfo">
-      <text class="bname">{{constitution.name}}体质</text>
+      <text class="bname">{{constitution.name}}</text>
       <text class="bprinciple">{{constitution.principle}}</text>
     </view>
+  </view>
+
+  <!-- 我的成就统计卡 -->
+  <view class="achievement-card">
+    <view class="achievement-header" bindtap="toggleAchievements">
+      <text class="achievement-title">🏆 我的成就</text>
+      <text class="achievement-toggle">{{achievementsExpanded ? '收起 ∧' : '展开 ∨'}}</text>
+    </view>
+    <view class="achievement-stats">
+      <view class="ach-stat">
+        <text class="ach-num">{{points}}</text>
+        <text class="ach-label">积分</text>
+      </view>
+      <view class="ach-divider"></view>
+      <view class="ach-stat">
+        <text class="ach-num">{{streak}}</text>
+        <text class="ach-label">连续天数</text>
+      </view>
+      <view class="ach-divider"></view>
+      <view class="ach-stat">
+        <text class="ach-num">{{earnedBadges.length}}</text>
+        <text class="ach-label">徽章</text>
+      </view>
+    </view>
+    <!-- 展开时显示徽章详情 -->
+    <view wx:if="{{achievementsExpanded}}">
+      <view class="badges-section" wx:if="{{earnedBadges.length > 0}}">
+        <text class="badges-title">已获得徽章</text>
+        <view class="badges-list">
+          <text class="badge-tag" wx:for="{{earnedBadges}}" wx:key="id">{{item.icon}} {{item.name}}</text>
+        </view>
+      </view>
+      <view class="badges-section" wx:if="{{unearnedBadges.length > 0}}">
+        <text class="badges-title">徽章墙</text>
+        <view class="badges-list">
+          <text class="badge-tag badge-tag-locked" wx:for="{{unearnedBadges}}" wx:key="id">{{BADGESObj[item].icon}} {{BADGESObj[item].name}}</text>
+        </view>
+      </view>
+      <view class="badges-section" wx:if="{{earnedBadges.length === 0 && unearnedBadges.length === 0}}">
+        <text class="badges-title" style="color:var(--text-muted);text-align:center;display:block;padding-bottom:20rpx;">暂无徽章，完成任务解锁吧</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 积分兑换 -->
+  <view class="redeem-card" wx:if="{{points > 0}}" bindtap="goExchange">
+    <view class="redeem-header">
+      <text class="redeem-title">🎁 积分兑换</text>
+      <text class="redeem-balance">{{points}} 积分</text>
+    </view>
+    <text class="redeem-hint">兑换专属食谱·节气手册·调理方案 ›</text>
   </view>
 
   <view class="menu">

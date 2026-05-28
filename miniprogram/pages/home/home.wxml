@@ -1,197 +1,202 @@
-<scroll-view class="container" scroll-y style="height: 100vh;">
-  <!-- Hero Section -->
-  <view class="hero-section">
-    <view class="hero-profile">{{heroAvatar}}</view>
-    <h2 class="hero-greeting">{{heroGreeting}}</h2>
-    <view class="consti-badge" wx:if="{{hasResult}}">{{currentConstitution.emoji}} {{currentConstitution.name}}</view>
-  </view>
-
-  <!-- 统计数据行 -->
-  <view class="stats-row">
-    <view class="stat-item">
-      <text class="stat-num">{{foodCount}}</text>
-      <text class="stat-label">食材库</text>
+<view class="page-wrap {{_pageClass}}">
+<privacy-popup id="privacy-popup" />
+<scroll-view class="container" scroll-y>
+  <view class="page-top-ornament">━━━  ❀  ━━━</view>
+  <!-- Hero -->
+  <view class="hero">
+    <view class="hero-brand">
+      <view class="brand-logo">🌿</view>
+      <view class="brand-seal">馋识</view>
     </view>
-    <view class="stat-item">
-      <text class="stat-num">{{constitutionCount}}</text>
-      <text class="stat-label">种体质</text>
-    </view>
-    <view class="stat-item">
-      <text class="stat-num">{{checkinDays}}</text>
-      <text class="stat-label">打卡天数</text>
-    </view>
-    <view class="stat-item">
-      <text class="stat-num">{{hasResult ? currentConstitution.emoji : '—'}}</text>
-      <text class="stat-label">{{hasResult ? currentConstitution.name : '未测评'}}</text>
+    <text class="hero-slogan">忌馋识度 · 养身有约</text>
+    <view class="hero-body">
+      <text class="hero-avatar">{{heroAvatar}}</text>
+      <view class="hero-info">
+        <text class="hero-greeting">{{heroGreeting}}</text>
+        <text class="hero-sub" wx:if="{{heroSubtext}}">{{heroSubtext}}</text>
+      </view>
     </view>
   </view>
 
-  <!-- 快捷操作按钮 -->
-  <view class="home-quick-action">
-    <view class="action-btn action-btn-primary" bindtap="goQuiz">
-      <text class="action-icon">🧬</text>
-      <text class="action-text">开始体质测试</text>
+  <!-- 节气诗词 -->
+  <view class="poetry-line" wx:if="{{poetry}}" bindtap="showPoetryStory">
+    <text class="poetry-line-text">「{{poetry.poem}}」—— {{poetry.author}}</text>
+  </view>
+
+  <!-- 快捷引导条 -->
+  <view class="quick-bar">
+    <view class="quick-item" bindtap="goQuiz">
+      <text class="quick-icon">🧬</text>
+      <text class="quick-label">体质测试</text>
     </view>
-    <view class="action-btn" bindtap="goResult" wx:if="{{hasResult}}">
-      <text class="action-icon">📊</text>
-      <text class="action-text">查看我的报告</text>
+    <view class="quick-divider"></view>
+    <view class="quick-item" bindtap="goTab" data-url="/pages/food/food">
+      <text class="quick-icon">🥦</text>
+      <text class="quick-label">食材查询</text>
+    </view>
+    <view class="quick-divider"></view>
+    <view class="quick-item" bindtap="go" data-url="/pages/season/season">
+      <text class="quick-icon">📅</text>
+      <text class="quick-label">时令养生</text>
+    </view>
+    <view class="quick-divider"></view>
+    <view class="quick-item" bindtap="go" data-url="/pages/workout/workout">
+      <text class="quick-icon">🏃</text>
+      <text class="quick-label">运动营养</text>
+    </view>
+    <view class="quick-divider"></view>
+    <view class="quick-item" bindtap="go" data-url="/pages/goods/goods">
+      <text class="quick-icon">🛒</text>
+      <text class="quick-label">养生好物</text>
     </view>
   </view>
 
-  <!-- 每日推荐食谱 -->
-  <view class="card daily-food-card" wx:if="{{dailyRecipe}}" bindtap="showRecipeDetail">
-    <view class="card-title">🍽️ 每日推荐食谱</view>
-    <view class="daily-food-main">
-      <text class="daily-food-name">{{dailyRecipe.name}}</text>
-      <text class="daily-food-arrow">›</text>
+  <!-- 体质+体脂秤 组合健康报告卡片 -->
+  <view class="card health-card" wx:if="{{showHealthSummary}}" bindtap="goScaleReport">
+    <view class="health-header">
+      <text class="card-title">📊 我的健康报告</text>
+      <text class="card-link">详情 ›</text>
     </view>
-    <text class="daily-food-reason" wx:if="{{hasResult}}">根据您的{{currentConstitution.name}}体质推荐</text>
-    <text class="daily-food-reason" wx:else>根据今日节气 · {{solarTerm.name}} 推荐</text>
-    <text class="daily-food-tap-hint">点击查看食材和做法</text>
-  </view>
-
-  <!-- 诗词卡片 -->
-  <view class="card poetry-card" wx:if="{{poetry}}" bindtap="showPoetryStory">
-    <view class="card-title">📜 节气诗词</view>
-    <text class="solar-name">{{solarTerm.name}}</text>
-    <view class="poem-content">
-      <text class="poem-text">{{poetry.poem}}</text>
-      <text class="poem-author">{{poetry.author}}</text>
+    <view class="health-body">
+      <view class="health-left">
+        <text class="health-constitution">{{healthSummary.constitution.emoji}} {{healthSummary.constitution.name}}体质</text>
+        <text class="health-principle">{{healthSummary.constitution.principle}}</text>
+      </view>
+      <view class="health-divider"></view>
+      <view class="health-right">
+        <view class="health-metric">
+          <text class="hm-label">体重</text>
+          <text class="hm-value">{{healthSummary.weight}}<text class="hm-unit">kg</text></text>
+        </view>
+        <view class="health-metric">
+          <text class="hm-label">BMI</text>
+          <text class="hm-value" style="color:{{healthSummary.bmiColor}}">{{healthSummary.bmi}}</text>
+        </view>
+        <view class="health-metric" wx:if="{{healthSummary.bodyFat}}">
+          <text class="hm-label">体脂率</text>
+          <text class="hm-value">{{healthSummary.bodyFat}}<text class="hm-unit">%</text></text>
+        </view>
+      </view>
     </view>
-    <text class="card-tip">点击了解诗词背后的故事</text>
-  </view>
-
-  <!-- 打卡卡片 -->
-  <view class="checkin-card" bindtap="doCheckin">
-    <view class="card-title">{{checkedIn ? '✅ 已打卡' : '📅 每日打卡'}}</view>
-    <text class="streak-text" wx:if="{{streak>0}}">🔥 连续 {{streak}} 天</text>
-    <text class="streak-text" wx:else>开始健康打卡之旅</text>
-  </view>
-
-  <!-- 打卡提示（已打卡时显示） -->
-  <view class="checkin-tip" wx:if="{{checkedIn && checkinTip}}">{{checkinTip}}</view>
-
-  <!-- 功能入口 2x2 -->
-  <view class="feature-grid">
-    <view class="feature-item" bindtap="goQuiz">
-      <text class="icon">🧬</text>
-      <text class="label">体质测试</text>
-    </view>
-    <view class="feature-item" bindtap="goTab" data-url="/pages/food/food">
-      <text class="icon">🥦</text>
-      <text class="label">食材查询</text>
-    </view>
-    <view class="feature-item" bindtap="go" data-url="/pages/season/season">
-      <text class="icon">📅</text>
-      <text class="label">时令养生</text>
-    </view>
-    <view class="feature-item" bindtap="go" data-url="/pages/workout/workout">
-      <text class="icon">🏃</text>
-      <text class="label">运动营养</text>
+    <view class="health-footer">
+      <text class="health-status" style="color:{{healthSummary.assessmentColor}}">{{healthSummary.assessmentTitle}}</text>
+      <text class="health-time" wx:if="{{healthSummary.measureTime}}">更新于 {{healthSummary.measureTime}}</text>
     </view>
   </view>
 
-  <!-- 当前体质（已测评） -->
-  <view class="card constitution-card" wx:if="{{hasResult}}">
-    <view class="card-title">🧬 当前体质</view>
-    <view class="constitution-info">
-      <text class="constitution-emoji">{{currentConstitution.emoji}}</text>
-      <text class="constitution-name">{{currentConstitution.name}}</text>
+  <!-- 打卡 → 中药故事 -->
+  <view class="card checkin-card {{checkedIn ? 'checked' : ''}}" bindtap="onCheckinTap">
+    <view class="checkin-header">
+      <text class="card-title">{{checkedIn ? '✅ 已打卡' : '📅 每日推送'}}</text>
+      <view class="checkin-badges">
+        <text class="streak-tag" wx:if="{{points>0}}">💎 {{points}}分</text>
+        <text class="streak-tag" wx:if="{{streak>0}}">🔥 {{streak}}天</text>
+      </view>
     </view>
-    <text class="constitution-principle">{{currentConstitution.principle}}</text>
+<text class="checkin-main" wx:if="{{checkedIn && dailyStory}}">📖 {{dailyStory.title}} — {{dailyStory.herb}}</text>
+<text class="checkin-main" wx:elif="{{checkedIn}}">📖 点击查看今日故事</text>
+<text class="checkin-main" wx:else>点击打卡 · 每日推送</text>
   </view>
 
-  <!-- 九种体质（未测评） -->
-  <view class="card" wx:else>
-    <view class="card-title">🧬 九种体质</view>
+  <!-- 九种体质（未测评时） -->
+  <view class="card consti-card" wx:if="{{!hasResult}}">
+    <text class="card-title">🧬 认识体质</text>
+    <view class="consti-intro">中医将人体体质分为九种，了解自己的体质才能科学养生</view>
     <scroll-view scroll-x class="chip-scroll">
-      <view class="chip" wx:for="{{constitutions}}" wx:key="id" style="border-color:{{item.color}}" bindtap="showConstitution" data-id="{{item.id}}">
-        <text>{{item.emoji}} {{item.name}}</text>
+      <view class="chip" wx:for="{{constitutions}}" wx:key="id"
+        style="border-color:{{item.color}}; color:{{item.color}}"
+        bindtap="showConstitution" data-id="{{item.id}}">
+        {{item.emoji}} {{item.name}}
       </view>
     </scroll-view>
-    <text class="card-sub" bindtap="goQuiz">点击开始体质测评 →</text>
+    <text class="card-link" bindtap="goQuiz">开始测评 →</text>
+  </view>
+
+  <!-- 当前体质（已测评时） -->
+  <view class="card consti-result-card" wx:if="{{hasResult}}" bindtap="showConstitutionDetail" data-id="{{currentConstitution.id}}">
+    <view class="consti-result-header">
+      <text class="card-title">🧬 我的体质</text>
+      <text class="card-link">详情 ›</text>
+    </view>
+    <view class="consti-result-body">
+      <text class="consti-big-emoji">{{currentConstitution.emoji}}</text>
+      <view class="consti-result-info">
+        <text class="consti-result-name">{{currentConstitution.name}}</text>
+        <text class="consti-result-principle">{{currentConstitution.principle}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 时令食材推荐 -->
+  <view class="card seasonal-card">
+    <text class="card-title">🌿 时令推荐食材</text>
+    <view class="seasonal-intro">{{climateLabel}} · {{solarTerm.name}}前后宜食</view>
+    <scroll-view scroll-x class="seasonal-scroll">
+      <view class="seasonal-chip" wx:for="{{seasonalFoods}}" wx:key="*this">{{item}}</view>
+    </scroll-view>
+    <text class="seasonal-tip">{{seasonTip}}</text>
+    <text class="card-link" bindtap="go" data-url="/pages/season/season">查看时令养生 ›</text>
   </view>
 
   <view class="disclaimer">本测评结果仅供参考，不构成医疗诊断建议。</view>
 
-  <!-- 诗词弹窗 -->
-  <view class="poetry-modal" wx:if="{{showPoetryModal}}" bindtap="hidePoetryModal">
-    <view class="modal-content" catchtap="preventBubble">
-      <view class="modal-header">
-        <text class="modal-title">{{solarTerm.name}}</text>
-        <text class="modal-close">×</text>
-      </view>
-      <view class="modal-body">
-        <view class="modal-poem">
-          <text class="modal-poem-text">{{poetry.poem}}</text>
-          <text class="modal-poem-author">{{poetry.author}}</text>
-        </view>
-        <view class="modal-divider"></view>
-        <view class="modal-story">
-          <text class="story-title">诗词背后的故事</text>
-          <text class="story-content">{{poetry.story}}</text>
-        </view>
-        <view class="modal-divider"></view>
-        <view class="modal-tip">
-          <text class="tip-title">养生提示</text>
-          <text class="tip-content">{{poetry.tip}}</text>
-        </view>
-      </view>
-      <view class="modal-footer">
-        <text class="modal-btn" bindtap="hidePoetryModal">我知道了</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 食谱详情弹窗 -->
-  <view class="poetry-modal" wx:if="{{showRecipeModal}}" bindtap="hideRecipeModal">
-    <view class="modal-content" catchtap="preventBubble">
-      <view class="modal-header">
-        <text class="modal-title">🍲 {{currentRecipe.name}}</text>
-        <text class="modal-close">×</text>
-      </view>
-      <view class="modal-body">
-        <view class="recipe-ingredients">
-          <text class="recipe-section-title">食材清单</text>
-          <view class="recipe-item-list">
-            <text wx:for="{{currentRecipe.ingredients}}" wx:key="*this" class="recipe-item">• {{item}}</text>
-          </view>
-        </view>
-        <view class="modal-divider"></view>
-        <view class="recipe-steps">
-          <text class="recipe-section-title">做法步骤</text>
-          <view class="recipe-step-list">
-            <text wx:for="{{currentRecipe.steps}}" wx:key="*this" class="recipe-step">{{index + 1}}. {{item}}</text>
-          </view>
-        </view>
-      </view>
-      <view class="modal-footer">
-        <text class="modal-btn" bindtap="hideRecipeModal">我知道了</text>
-      </view>
-    </view>
-  </view>
-
   <!-- 体质详情弹窗 -->
-  <view class="poetry-modal" wx:if="{{showConstiModal}}" bindtap="hideConstiModal">
-    <view class="modal-content" catchtap="preventBubble">
+  <view class="modal" wx:if="{{showConstiModal}}" bindtap="hideConstiModal">
+    <view class="modal-content" catchtap>
       <view class="modal-header">
-        <text class="modal-title">{{currentConsti.emoji}} {{currentConsti.name}}</text>
+        <text class="modal-title">{{currentConsti.emoji}} {{currentConsti.name}}体质</text>
         <text class="modal-close">×</text>
       </view>
       <view class="modal-body">
-        <view class="consti-desc">{{currentConsti.description}}</view>
+        <!-- 概述 -->
+        <text class="modal-section-text" style="font-size:28rpx;line-height:1.8;margin-bottom:8rpx;">{{currentConsti.description}}</text>
         <view class="modal-divider"></view>
-        <view class="consti-section">
-          <text class="consti-section-title">特征</text>
-          <text class="consti-text">{{currentConsti.character}}</text>
+        <!-- 体质特征 -->
+        <view class="consti-detail">
+          <text class="modal-section-title">🔍 体质特征</text>
+          <text class="modal-section-text">{{currentConsti.character}}</text>
         </view>
-        <view class="consti-section">
-          <text class="consti-section-title">调养原则</text>
-          <text class="consti-text">{{currentConsti.principle}}</text>
+        <!-- 调养原则 -->
+        <view class="consti-detail">
+          <text class="modal-section-title">📜 调养原则</text>
+          <text class="modal-section-text">{{currentConsti.principleDetail || currentConsti.principle}}</text>
         </view>
-        <view class="consti-section">
-          <text class="consti-section-title">宜食</text>
-          <text class="consti-text">{{currentConsti.suitable.slice(0,6).join('、')}}...</text>
+        <!-- 经典依据 -->
+        <view class="consti-detail" wx:if="{{currentConsti.evidence}}">
+          <text class="modal-section-title">📖 经典依据</text>
+          <text class="modal-section-text">{{currentConsti.evidence}}</text>
+        </view>
+        <view class="modal-divider"></view>
+        <!-- 养生建议 -->
+        <view class="consti-detail">
+          <text class="modal-section-title">🌿 养生建议</text>
+          <text class="modal-section-text">{{currentConsti.healthAdvice}}</text>
+        </view>
+        <!-- 季节提示 -->
+        <view class="consti-detail" wx:if="{{currentConsti.seasonTip}}">
+          <text class="modal-section-title">🍂 季节提示</text>
+          <text class="modal-section-text">{{currentConsti.seasonTip}}</text>
+        </view>
+        <view class="modal-divider"></view>
+        <!-- 宜食 -->
+        <view class="consti-detail">
+          <text class="modal-section-title">✅ 宜食</text>
+          <text class="modal-section-text">{{currentConsti.suitable.join('、')}}</text>
+        </view>
+        <!-- 慎食 -->
+        <view class="consti-detail">
+          <text class="modal-section-title">⚠️ 慎食</text>
+          <text class="modal-section-text">{{currentConsti.avoid.join('、')}}</text>
+        </view>
+        <!-- 推荐食谱 -->
+        <view class="consti-detail" wx:if="{{currentConsti.recommendFoods && currentConsti.recommendFoods.length}}">
+          <text class="modal-section-title">🍽️ 推荐食谱</text>
+          <text class="modal-section-text">{{currentConsti.recommendFoods.join('、')}}</text>
+        </view>
+        <!-- 运动建议 -->
+        <view class="consti-detail" wx:if="{{currentConsti.fitnessAdvice}}">
+          <text class="modal-section-title">🏃 运动建议</text>
+          <text class="modal-section-text">{{currentConsti.fitnessAdvice}}</text>
         </view>
       </view>
       <view class="modal-footer">
@@ -199,4 +204,115 @@
       </view>
     </view>
   </view>
+
+  <!-- 首次进入引导弹窗 -->
+  <view class="modal" wx:if="{{showGuideModal}}" catchtap="hideGuideModal">
+    <view class="modal-content" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">🌿 欢迎开启养生之旅</text>
+        <text class="modal-close" catchtap="hideGuideModal">×</text>
+      </view>
+      <view class="modal-body">
+        <view class="guide-content">
+          <text class="guide-emoji">🧬</text>
+          <text class="guide-title">先了解您的体质</text>
+          <text class="guide-desc">中医将人体体质分为九种，每种体质有不同的饮食调养方式。花2分钟做一个小测试，我们会为您生成个性化的养生方案。</text>
+          <view class="guide-steps">
+            <text class="guide-step">✓ 18道专业题目</text>
+            <text class="guide-step">✓ 9种体质精准判定</text>
+            <text class="guide-step">✓ 个性化食疗建议</text>
+          </view>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <text class="modal-btn modal-btn-primary" catchtap="startQuizFromGuide">开始测试</text>
+        <text class="modal-btn" catchtap="hideGuideModal">稍后再说</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 中药故事弹窗 -->
+  <view class="modal" wx:if="{{showStoryModal}}" bindtap="hideStoryModal">
+    <view class="modal-content" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">📖 {{currentStory.title}}</text>
+        <text class="modal-close" catchtap="hideStoryModal">×</text>
+      </view>
+      <view class="modal-body">
+        <view class="story-hero">
+          <text class="story-herb">🌿 {{currentStory.herb}}</text>
+          <text class="story-summary">{{currentStory.summary}}</text>
+        </view>
+        <view class="modal-divider"></view>
+        <view class="story-section">
+          <text class="modal-section-title">📜 故事</text>
+          <text class="story-text">{{currentStory.story}}</text>
+        </view>
+        <view class="modal-divider" wx:if="{{currentStory.lesson}}"></view>
+        <view class="story-section" wx:if="{{currentStory.lesson}}">
+          <text class="modal-section-title">🌿 养生启示</text>
+          <text class="story-text">{{currentStory.lesson}}</text>
+        </view>
+        <view class="modal-divider" wx:if="{{currentStory.source}}"></view>
+        <view class="story-source" wx:if="{{currentStory.source}}">
+          <text class="source-text">📚 出处：{{currentStory.source}}</text>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <text class="modal-btn" catchtap="hideStoryModal">我知道了</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 诗词弹窗 -->
+  <view class="modal" wx:if="{{showPoetryModal}}" bindtap="hidePoetryModal">
+    <view class="modal-content" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">📜 {{solarTerm.name}} · 节气诗词</text>
+        <text class="modal-close" catchtap="hidePoetryModal">×</text>
+      </view>
+      <view class="modal-body">
+        <view class="modal-poem">
+          <text class="modal-poem-text">{{poetry.poem}}</text>
+          <text class="modal-poem-author">{{poetry.author}}</text>
+        </view>
+        <view class="modal-divider"></view>
+        <view class="modal-story-section">
+          <text class="modal-section-title">📖 诗词背后的故事</text>
+          <text class="story-text">{{poetry.story}}</text>
+        </view>
+        <view class="modal-divider"></view>
+        <view class="modal-tip-section">
+          <text class="modal-section-title">🌿 养生提示</text>
+          <text class="story-text">{{poetry.tip}}</text>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <text class="modal-btn" catchtap="hidePoetryModal">我知道了</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分享解锁徽章弹窗 -->
+  <view class="modal" wx:if="{{showShareRewardModal}}" catchtap="hideShareRewardModal">
+    <view class="modal-content" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">🎉 恭喜获得徽章</text>
+        <text class="modal-close" catchtap="hideShareRewardModal">×</text>
+      </view>
+      <view class="modal-body">
+        <view class="guide-content">
+          <text class="guide-emoji">{{shareRewardBadge.icon}}</text>
+          <text class="guide-title">{{shareRewardBadge.name}}</text>
+          <text class="guide-desc">你已连续打卡 {{shareRewardStreak}} 天！分享给好友即可解锁此徽章</text>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <button class="modal-btn modal-btn-primary" open-type="share" bindtap="onShareForBadge">分享解锁</button>
+        <text class="modal-btn" catchtap="hideShareRewardModal">稍后再说</text>
+      </view>
+    </view>
+  </view>
+
 </scroll-view>
+</view>
