@@ -23,27 +23,27 @@
   <!-- 快捷引导条 -->
   <view class="quick-bar">
     <view class="quick-item" bindtap="goQuiz">
-      <text class="quick-icon">🧬</text>
+      <image class="quick-icon-img" src="/images/quiz_a.png" mode="aspectFit"/>
       <text class="quick-label">体质测试</text>
     </view>
     <view class="quick-divider"></view>
     <view class="quick-item" bindtap="goTab" data-url="/pages/food/food">
-      <text class="quick-icon">🥦</text>
+      <image class="quick-icon-img" src="/images/food_a.png" mode="aspectFit"/>
       <text class="quick-label">食材查询</text>
     </view>
     <view class="quick-divider"></view>
     <view class="quick-item" bindtap="go" data-url="/pages/season/season">
-      <text class="quick-icon">📅</text>
+      <image class="quick-icon-img" src="/images/season_a.png" mode="aspectFit"/>
       <text class="quick-label">时令养生</text>
     </view>
     <view class="quick-divider"></view>
     <view class="quick-item" bindtap="go" data-url="/pages/workout/workout">
-      <text class="quick-icon">🏃</text>
+      <image class="quick-icon-img" src="/images/workout_a.png" mode="aspectFit"/>
       <text class="quick-label">运动营养</text>
     </view>
     <view class="quick-divider"></view>
     <view class="quick-item" bindtap="go" data-url="/pages/goods/goods">
-      <text class="quick-icon">🛒</text>
+      <image class="quick-icon-img" src="/images/cart_a.png" mode="aspectFit"/>
       <text class="quick-label">养生好物</text>
     </view>
   </view>
