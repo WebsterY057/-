@@ -40,12 +40,12 @@
           <div style="color:var(--text-muted);">加载中...</div>
         </div>
 
-        <div id="poetrySection" class="card" style="cursor:pointer;" onclick="showPoetryModal()">
-          <div class="card-title">📜 节气诗词</div>
-          <div id="poetrySolarName" style="font-size:14px;color:var(--text-secondary);margin-bottom:8px;"></div>
-          <div id="poetryText" style="font-size:14px;line-height:1.6;white-space:pre-line;margin-bottom:6px;"></div>
-          <div id="poetryAuthor" style="font-size:12px;color:var(--text-muted);"></div>
-          <div style="font-size:12px;color:var(--accent);margin-top:8px;">点击查看诗词故事</div>
+        <div id="poetrySection" class="card" style="cursor:pointer;padding-top:12px;" onclick="showPoetryModal()">
+          <div class="card-title" style="margin-bottom:8px;">📜 节气诗词</div>
+          <div id="poetrySolarName" style="font-size:13px;color:var(--text-secondary);margin-bottom:6px;text-align:center;"></div>
+          <div id="poetryText" style="font-size:16px;line-height:1.7;white-space:pre-line;margin-bottom:6px;text-align:center;font-family:'STKaiti','KaiTi','Noto Serif SC',serif;font-variant-east-asian:proportional-width;"></div>
+          <div id="poetryAuthor" style="font-size:12px;color:var(--text-muted);text-align:center;"></div>
+          <div style="font-size:12px;color:var(--accent);margin-top:8px;text-align:center;">点击查看诗词故事</div>
         </div>
 
         <div class="modal-overlay" id="poetryModal" style="display:none;" onclick="hidePoetryModal()">
@@ -55,8 +55,8 @@
               <span onclick="hidePoetryModal()" style="font-size:24px;cursor:pointer;color:var(--text-muted);">×</span>
             </div>
             <div class="modal-body">
-              <div id="modalPoemText" style="font-size:15px;line-height:1.7;white-space:pre-line;margin-bottom:8px;"></div>
-              <div id="modalPoemAuthor" style="font-size:13px;color:var(--text-muted);margin-bottom:16px;"></div>
+              <div id="modalPoemText" style="font-size:16px;line-height:1.8;white-space:pre-line;margin-bottom:8px;text-align:center;font-family:'STKaiti','KaiTi','Noto Serif SC',serif;font-variant-east-asian:proportional-width;"></div>
+              <div id="modalPoemAuthor" style="font-size:13px;color:var(--text-muted);margin-bottom:16px;text-align:center;"></div>
               <div style="border-top:1px solid var(--border);padding-top:12px;">
                 <div style="font-size:14px;font-weight:600;margin-bottom:6px;">诗词背后的故事</div>
                 <div id="modalStory" style="font-size:13px;line-height:1.6;color:var(--text-secondary);"></div>
