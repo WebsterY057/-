@@ -397,7 +397,8 @@
 }
 .seasonal-intro {
   font-size:   26rpx;
-  color:       var(--text-secondary);
+  color:       var(--ochre);
+  opacity: 0.8;
   margin-bottom: 18rpx;
 }
 .seasonal-scroll {
