@@ -4,10 +4,7 @@
   <view class="page-top-ornament">━━━  ❀  ━━━</view>
   <!-- Hero -->
   <view class="hero">
-    <view class="hero-brand">
-      <view class="brand-logo">🌿</view>
-      <view class="brand-seal">馋识</view>
-    </view>
+    <view class="brand-logo">🌿</view>
     <text class="hero-slogan">忌馋识度 · 养身有约</text>
     <view class="hero-body">
       <text class="hero-avatar">{{heroAvatar}}</text>
